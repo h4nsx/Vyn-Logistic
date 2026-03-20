@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: vyn-logistics-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+
+    envVars:
+      - key: MONGODB_URL
+        sync: false  # Set manually in Render dashboard (contains password)
+
+      - key: MONGODB_DB_NAME
+        value: vyn_logistics
+
+      - key: AI_MODEL_URL
+        value: https://logistics-ai-api.onrender.com
+
+      - key: CORS_ORIGINS
+        value: '["*"]'
+
+      - key: PYTHON_VERSION
+        value: 3.11.0
