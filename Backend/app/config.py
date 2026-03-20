@@ -8,6 +8,18 @@ class Settings(BaseSettings):
     AI_MODEL_URL: str = "https://logistics-ai-api.onrender.com"
     PORT: int = 8000
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
+    JWT_SECRET_KEY: str = "change-this-secret-in-production"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 1440
+    RESET_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_COOKIE_NAME: str = "refresh_token"
+    COOKIE_SECURE: bool = False
+    COOKIE_SAMESITE: str = "lax"
+    FRONTEND_URL: str = "http://localhost:3000"
+    RESEND_API_KEY: str = ""
+    RESEND_FROM_EMAIL: str = "onboarding@resend.dev"
+    GOOGLE_CLIENT_ID: str = ""
 
     class Config:
         env_file = ".env"

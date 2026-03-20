@@ -40,6 +40,16 @@ Swagger UI: http://localhost:8000/docs
 | POST | `/api/entity/{type}/predict` | Predict risk for single entity |
 | POST | `/api/entity/{type}/predict_batch` | Batch entity risk prediction |
 | GET | `/api/entity/results` | Get entity prediction history |
+| POST | `/api/auth/signup` | Sign up with email/password |
+| POST | `/api/auth/signin` | Sign in with email/password |
+| POST | `/api/auth/social/google` | Sign in/up via Google token |
+| POST | `/api/auth/social/github` | Sign in/up via GitHub token |
+| POST | `/api/auth/refresh` | Rotate refresh token and return new access token |
+| POST | `/api/auth/logout` | Revoke current refresh token |
+| GET | `/api/auth/me` | Get current user profile |
+| POST | `/api/auth/change-password` | Change password (logged-in user) |
+| POST | `/api/auth/forgot-password` | Send reset email via Resend |
+| POST | `/api/auth/reset-password` | Reset password with token |
 
 ## Upload Flow
 
@@ -73,3 +83,12 @@ POST /api/upload?process_code=TRUCKING_DELIVERY_FLOW
 | < 80 | Normal |
 | 80–100 | Warning |
 | ≥ 100 | High Risk (Anomaly) |
+
+## Authentication Notes
+
+- Allowed roles in system: `admin`, `user`
+- Self-signup always creates role `user` (admin must be assigned manually)
+- Access token lifetime: 15 minutes
+- Refresh token lifetime: 1 day
+- Refresh token is stored in secure HttpOnly cookie
+- Forgot password uses Resend API to send reset link

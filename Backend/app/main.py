@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import create_indexes, close_connection
-from app.api import upload, anomalies, process, results, entity
+from app.api import upload, anomalies, process, results, entity, auth
 
 logging.basicConfig(
     level=logging.INFO,
@@ -46,6 +46,7 @@ app.include_router(anomalies.router, prefix="/api", tags=["Anomalies"])
 app.include_router(process.router, prefix="/api", tags=["Process"])
 app.include_router(results.router, prefix="/api", tags=["Results"])
 app.include_router(entity.router, prefix="/api", tags=["Entity"])
+app.include_router(auth.router, prefix="/api", tags=["Auth"])
 
 
 @app.get("/", tags=["Health"])

@@ -37,6 +37,19 @@ async def create_indexes() -> None:
         await db.entity_results.create_index("entity_type")
         await db.entity_results.create_index([("predicted_at", -1)])
 
+        # Auth collections
+        await db.users.create_index("email", unique=True)
+        await db.users.create_index("role")
+        await db.users.create_index([("created_at", -1)])
+
+        await db.refresh_tokens.create_index("token_hash", unique=True)
+        await db.refresh_tokens.create_index([("user_id", 1), ("jti", 1)], unique=True)
+        await db.refresh_tokens.create_index("expires_at", expireAfterSeconds=0)
+
+        await db.password_reset_tokens.create_index("token_hash", unique=True)
+        await db.password_reset_tokens.create_index("user_id")
+        await db.password_reset_tokens.create_index("expires_at", expireAfterSeconds=0)
+
         logger.info("MongoDB indexes created successfully")
     except Exception as exc:
         logger.warning(
