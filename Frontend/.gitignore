@@ -1,0 +1,170 @@
+# =========================
+
+# 📦 Dependencies
+
+# =========================
+
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# =========================
+
+# 🏗 Build Outputs
+
+# =========================
+
+dist/
+build/
+.out/
+coverage/
+
+# =========================
+
+# ⚡ Vite
+
+# =========================
+
+.vite/
+vite.config.ts.timestamp-*
+vite.config.js.timestamp-*
+
+# =========================
+
+# 🔐 Environment Variables (IMPORTANT)
+
+# =========================
+
+.env
+.env.*
+!.env.example
+
+# =========================
+
+# 🧠 TypeScript
+
+# =========================
+
+*.tsbuildinfo
+
+# =========================
+
+# 🧪 Testing
+
+# =========================
+
+coverage/
+*.lcov
+
+# =========================
+
+# 🧹 Logs
+
+# =========================
+
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+
+# 💻 OS Files
+
+# =========================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+
+# 🧑‍💻 IDE / Editor
+
+# =========================
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.bak
+
+# VSCode (optional keep workspace settings)
+
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+
+# =========================
+
+# 🔒 Secrets / Keys
+
+# =========================
+
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+
+# =========================
+
+# 📦 Cache
+
+# =========================
+
+.cache/
+.temp/
+.tmp/
+
+# =========================
+
+# 📊 Misc
+
+# =========================
+
+*.tgz
+*.zip
+
+# =========================
+
+# 🧩 Storybook (if added later)
+
+# =========================
+
+storybook-static/
+
+# =========================
+
+# 🐳 Docker (if used)
+
+# =========================
+
+.docker/
+docker-compose.override.yml
+
+# =========================
+
+# 🗄 Database / Local Data
+
+# =========================
+
+*.sqlite
+*.db
+
+# =========================
+
+# 🧾 Generated files
+
+# =========================
+
+*.generated.*
