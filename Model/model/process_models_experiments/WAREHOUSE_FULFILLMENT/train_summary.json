@@ -1,0 +1,17 @@
+{
+  "process_code": "WAREHOUSE_FULFILLMENT",
+  "events_rows_used": 276000,
+  "cases_used": 12000,
+  "include_context_numeric": false,
+  "n_estimators": 300,
+  "contamination": 0.08,
+  "random_state": 42,
+  "artifacts_dir": "D:\\logistics_AI\\model\\process_models_experiments\\WAREHOUSE_FULFILLMENT",
+  "validation_warnings": [],
+  "feature_report": {
+    "cases": 12000,
+    "dropped_cases": 0,
+    "repeated_case_count": 0,
+    "missing_step_cases": 0
+  }
+}

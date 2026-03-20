@@ -1,0 +1,98 @@
+{
+  "trucking": {
+    "normal": {
+      "file": "test_trucking_normal_250scenarios.csv",
+      "rows": 8000,
+      "scenario_count": 250,
+      "entity_rows": 750,
+      "process_event_rows": 7250,
+      "driver_rows": 250,
+      "fleet_rows": 250,
+      "ops_rows": 250
+    },
+    "subtle_bottleneck": {
+      "file": "test_trucking_subtle_bottleneck_250scenarios.csv",
+      "rows": 8000,
+      "scenario_count": 250,
+      "entity_rows": 750,
+      "process_event_rows": 7250,
+      "driver_rows": 250,
+      "fleet_rows": 250,
+      "ops_rows": 250
+    },
+    "bottleneck": {
+      "file": "test_trucking_bottleneck_250scenarios.csv",
+      "rows": 8000,
+      "scenario_count": 250,
+      "entity_rows": 750,
+      "process_event_rows": 7250,
+      "driver_rows": 250,
+      "fleet_rows": 250,
+      "ops_rows": 250
+    }
+  },
+  "warehouse": {
+    "normal": {
+      "file": "test_warehouse_normal_250scenarios.csv",
+      "rows": 6500,
+      "scenario_count": 250,
+      "entity_rows": 750,
+      "process_event_rows": 5750,
+      "driver_rows": 250,
+      "fleet_rows": 250,
+      "ops_rows": 250
+    },
+    "subtle_bottleneck": {
+      "file": "test_warehouse_subtle_bottleneck_250scenarios.csv",
+      "rows": 6500,
+      "scenario_count": 250,
+      "entity_rows": 750,
+      "process_event_rows": 5750,
+      "driver_rows": 250,
+      "fleet_rows": 250,
+      "ops_rows": 250
+    },
+    "bottleneck": {
+      "file": "test_warehouse_bottleneck_250scenarios.csv",
+      "rows": 6500,
+      "scenario_count": 250,
+      "entity_rows": 750,
+      "process_event_rows": 5750,
+      "driver_rows": 250,
+      "fleet_rows": 250,
+      "ops_rows": 250
+    }
+  },
+  "customs": {
+    "normal": {
+      "file": "test_customs_normal_250scenarios.csv",
+      "rows": 4750,
+      "scenario_count": 250,
+      "entity_rows": 750,
+      "process_event_rows": 4000,
+      "driver_rows": 250,
+      "fleet_rows": 250,
+      "ops_rows": 250
+    },
+    "subtle_bottleneck": {
+      "file": "test_customs_subtle_bottleneck_250scenarios.csv",
+      "rows": 4750,
+      "scenario_count": 250,
+      "entity_rows": 750,
+      "process_event_rows": 4000,
+      "driver_rows": 250,
+      "fleet_rows": 250,
+      "ops_rows": 250
+    },
+    "bottleneck": {
+      "file": "test_customs_bottleneck_250scenarios.csv",
+      "rows": 4750,
+      "scenario_count": 250,
+      "entity_rows": 750,
+      "process_event_rows": 4000,
+      "driver_rows": 250,
+      "fleet_rows": 250,
+      "ops_rows": 250
+    }
+  }
+}

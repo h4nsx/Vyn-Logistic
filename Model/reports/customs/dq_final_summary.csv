@@ -1,0 +1,2 @@
+﻿process_code,row_count,case_count,unknown_step_count,duplicate_event_rows,negative_duration_count,zero_duration_count,declaration_coverage_rate,inspection_coverage_rate,hold_coverage_rate,recheck_coverage_rate,release_coverage_rate,many_rechecks_rate,inspection_heavy_rate,hold_heavy_rate,long_clearance_lag_rate
+IMPORT_CUSTOMS_CLEARANCE,68576,4286,0,0,0,0,1.0,1.0,0.0,0.0,1.0,0.0,0.0502,1.0,0.0502

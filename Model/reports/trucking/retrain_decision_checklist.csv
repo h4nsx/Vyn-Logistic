@@ -1,0 +1,6 @@
+﻿decision_item,status
+backup_completed,True
+registry_loaded,True
+current_model_exists,True
+feature_schema_loaded,True
+candidate_retrained_now,False

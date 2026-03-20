@@ -1,0 +1,2 @@
+﻿case_count,feature_count,avg_linehaul_ratio,avg_hub_depot_ratio,avg_last_mile_ratio,avg_delivery_attempt_count,avg_hub_depot_touch_count,p95_max_gap_to_next_min,return_flow_rate
+12000,20,0.3486,0.2774,0.0853,2.0,8.0,0.0,1.0

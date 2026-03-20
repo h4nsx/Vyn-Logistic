@@ -1,0 +1,6 @@
+﻿metric,description
+route_pattern_reasonable,linehaul / hub_depot / last_mile ratio không lệch bất hợp lý
+attempt_and_hub_touch_reasonable,delivery attempts và hub/depot touches không bùng nổ bất thường
+score_distribution_reasonable,phân phối score còn đủ phân tán sau retrain
+candidate_artifacts_complete,đủ model/scaler/baselines/schema/quantiles/summary
+rollback_possible,đã có backup artifact production trước khi retrain

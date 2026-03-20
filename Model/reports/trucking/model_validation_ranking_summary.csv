@@ -1,0 +1,2 @@
+﻿case_count,anomaly_count,anomaly_rate,score_max,score_p95,score_p80,score_min
+12000,2400,0.2,0.807543,0.490547,0.432228,0.358658

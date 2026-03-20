@@ -1,0 +1,7 @@
+﻿artifact,exists,path
+model.pkl,True,D:\logistics_AI\model\process_models\IMPORT_CUSTOMS_CLEARANCE\model.pkl
+scaler.pkl,True,D:\logistics_AI\model\process_models\IMPORT_CUSTOMS_CLEARANCE\scaler.pkl
+baselines.json,True,D:\logistics_AI\model\process_models\IMPORT_CUSTOMS_CLEARANCE\baselines.json
+feature_schema.json,True,D:\logistics_AI\model\process_models\IMPORT_CUSTOMS_CLEARANCE\feature_schema.json
+score_quantiles.json,True,D:\logistics_AI\model\process_models\IMPORT_CUSTOMS_CLEARANCE\score_quantiles.json
+train_summary.json,True,D:\logistics_AI\model\process_models\IMPORT_CUSTOMS_CLEARANCE\train_summary.json

@@ -1,0 +1,6 @@
+﻿metric,description
+qc_and_staging_reasonable,QC / staging ratio không lệch bất hợp lý sau retrain
+queue_wait_reasonable,Internal wait / queue gap không bùng nổ vô lý
+rework_reasonable,Retouch / repeat handling không tăng méo sau retrain
+candidate_artifacts_complete,Đủ model/scaler/baselines/schema/quantiles/summary
+rollback_possible,Đã có backup artifact production trước khi retrain

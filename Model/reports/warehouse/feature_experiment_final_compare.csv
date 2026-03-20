@@ -1,0 +1,5 @@
+﻿bundle,row_count,feature_count,score_mean,score_std,score_min,score_p80,score_p95,score_p99,score_max,tail_gap_p99_p95,business_focus
+FLOW_BALANCE,12000,12,0.437002,0.056899,0.369319,0.468161,0.554575,0.644384,0.76574,0.089809,"Mất cân bằng giữa picking, packing và handoff"
+CONGESTION,12000,13,0.435152,0.063973,0.359135,0.470556,0.57775,0.643569,0.730262,0.065818,QC/staging/internal wait trở thành choke point
+REWORK,12000,10,0.5,0.0,0.5,0.5,0.5,0.5,0.5,0.0,Retouch / repeat handling trong kho
+FULL_WAREHOUSE,12000,38,0.440308,0.049283,0.361981,0.47802,0.54164,0.587611,0.667665,0.045971,Tổng hợp flow balance + congestion + rework + context

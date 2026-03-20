@@ -1,0 +1,2 @@
+﻿process_code,recommended_feature_set,n_estimators,contamination,max_samples,max_features,random_state
+IMPORT_CUSTOMS_CLEARANCE,RELEASE_GATE,250,0.05,0.8,0.8,42

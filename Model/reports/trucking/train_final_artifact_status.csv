@@ -1,0 +1,7 @@
+﻿artifact,exists,path
+model.pkl,True,D:\logistics_AI\model\process_models\TRUCKING_DELIVERY_FLOW\model.pkl
+scaler.pkl,True,D:\logistics_AI\model\process_models\TRUCKING_DELIVERY_FLOW\scaler.pkl
+baselines.json,True,D:\logistics_AI\model\process_models\TRUCKING_DELIVERY_FLOW\baselines.json
+feature_schema.json,True,D:\logistics_AI\model\process_models\TRUCKING_DELIVERY_FLOW\feature_schema.json
+score_quantiles.json,True,D:\logistics_AI\model\process_models\TRUCKING_DELIVERY_FLOW\score_quantiles.json
+train_summary.json,True,D:\logistics_AI\model\process_models\TRUCKING_DELIVERY_FLOW\train_summary.json

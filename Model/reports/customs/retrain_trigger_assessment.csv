@@ -1,0 +1,8 @@
+﻿trigger_name,observed_metric,observed_value,threshold_rule,triggered
+release_gate_delay_drift,release_gate_index mean change / decl_to_release_min p95 change,0.0,change >= 0.20,False
+amendment_churn_surge,amendment_loop_index mean change / recheck_touch_count mean change,0.0,change >= 0.20,False
+inspection_escalation_shift,exam_escalation_index mean change / inspection duration change,0.0,change >= 0.15,False
+hold_duration_surge,hold phase duration mean change,,change >= 0.20,
+duty_payment_lag_shift,duty_payment phase duration mean change,0.0,change >= 0.20,False
+path_routing_shift,path_complexity_index mean change,0.0,abs(change) >= 0.15,False
+registry_change,registry step count,16.0,manual review,

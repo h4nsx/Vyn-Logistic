@@ -1,0 +1,121 @@
+{
+  "process_code": "TRUCKING_DELIVERY_FLOW",
+  "steps": [
+    {
+      "step_code": "STEP_001_DISPATCH_CREATED",
+      "order_index": 1
+    },
+    {
+      "step_code": "STEP_002_CARRIER_TENDERED",
+      "order_index": 2
+    },
+    {
+      "step_code": "STEP_003_TENDER_ACCEPTED",
+      "order_index": 3
+    },
+    {
+      "step_code": "STEP_004_DRIVER_ASSIGNED",
+      "order_index": 4
+    },
+    {
+      "step_code": "STEP_005_PICKUP_APPOINTMENT_SET",
+      "order_index": 5
+    },
+    {
+      "step_code": "STEP_006_DRIVER_EN_ROUTE_PICKUP",
+      "order_index": 6
+    },
+    {
+      "step_code": "STEP_007_ARRIVE_PICKUP",
+      "order_index": 7
+    },
+    {
+      "step_code": "STEP_008_GATE_IN_PICKUP",
+      "order_index": 8
+    },
+    {
+      "step_code": "STEP_009_WAIT_PICKUP",
+      "order_index": 9
+    },
+    {
+      "step_code": "STEP_010_LOAD_START",
+      "order_index": 10
+    },
+    {
+      "step_code": "STEP_011_LOAD_COMPLETE",
+      "order_index": 11
+    },
+    {
+      "step_code": "STEP_012_DEPART_PICKUP",
+      "order_index": 12
+    },
+    {
+      "step_code": "STEP_013_EN_ROUTE_HUB",
+      "order_index": 13
+    },
+    {
+      "step_code": "STEP_014_ARRIVE_HUB",
+      "order_index": 14
+    },
+    {
+      "step_code": "STEP_015_HUB_INBOUND_SCAN",
+      "order_index": 15
+    },
+    {
+      "step_code": "STEP_016_HUB_SORT_COMPLETE",
+      "order_index": 16
+    },
+    {
+      "step_code": "STEP_017_HUB_OUTBOUND_SCAN",
+      "order_index": 17
+    },
+    {
+      "step_code": "STEP_018_LINEHAUL_START",
+      "order_index": 18
+    },
+    {
+      "step_code": "STEP_019_IN_TRANSIT_LINEHAUL",
+      "order_index": 19
+    },
+    {
+      "step_code": "STEP_020_ARRIVE_LASTMILE_DEPOT",
+      "order_index": 20
+    },
+    {
+      "step_code": "STEP_021_LASTMILE_SORT_COMPLETE",
+      "order_index": 21
+    },
+    {
+      "step_code": "STEP_022_ROUTE_PLANNED",
+      "order_index": 22
+    },
+    {
+      "step_code": "STEP_023_OUT_FOR_DELIVERY",
+      "order_index": 23
+    },
+    {
+      "step_code": "STEP_024_DELIVERY_ATTEMPT_1",
+      "order_index": 24
+    },
+    {
+      "step_code": "STEP_025_DELIVERED_CONFIRMED",
+      "order_index": 25
+    },
+    {
+      "step_code": "STEP_026_POD_UPLOADED",
+      "order_index": 26
+    },
+    {
+      "step_code": "STEP_027_RETURN_TO_DEPOT",
+      "order_index": 27
+    },
+    {
+      "step_code": "STEP_028_TRIP_CLOSEOUT",
+      "order_index": 28
+    },
+    {
+      "step_code": "STEP_029_BILLING_COMPLETE",
+      "order_index": 29
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "process_code": "WAREHOUSE_FULFILLMENT",
+  "steps": [
+    {
+      "step_code": "STEP_001_ORDER_CONFIRMED",
+      "order_index": 1
+    },
+    {
+      "step_code": "STEP_002_FRAUD_CHECK",
+      "order_index": 2
+    },
+    {
+      "step_code": "STEP_003_PAYMENT_VERIFIED",
+      "order_index": 3
+    },
+    {
+      "step_code": "STEP_004_INVENTORY_RESERVED",
+      "order_index": 4
+    },
+    {
+      "step_code": "STEP_005_WAVE_PLANNED",
+      "order_index": 5
+    },
+    {
+      "step_code": "STEP_006_PICK_START",
+      "order_index": 6
+    },
+    {
+      "step_code": "STEP_007_PICK_COMPLETE",
+      "order_index": 7
+    },
+    {
+      "step_code": "STEP_008_REPLENISH_COMPLETE",
+      "order_index": 8
+    },
+    {
+      "step_code": "STEP_009_SORTATION_COMPLETE",
+      "order_index": 9
+    },
+    {
+      "step_code": "STEP_010_QC_COMPLETE",
+      "order_index": 10
+    },
+    {
+      "step_code": "STEP_011_PACKING_START",
+      "order_index": 11
+    },
+    {
+      "step_code": "STEP_012_LABEL_PRINT",
+      "order_index": 12
+    },
+    {
+      "step_code": "STEP_013_WEIGH_DIM_CHECK",
+      "order_index": 13
+    },
+    {
+      "step_code": "STEP_014_PACKING_COMPLETE",
+      "order_index": 14
+    },
+    {
+      "step_code": "STEP_015_MANIFEST_CREATED",
+      "order_index": 15
+    },
+    {
+      "step_code": "STEP_016_STAGING_COMPLETE",
+      "order_index": 16
+    },
+    {
+      "step_code": "STEP_017_DOCK_ASSIGN",
+      "order_index": 17
+    },
+    {
+      "step_code": "STEP_018_LOAD_TO_TRUCK",
+      "order_index": 18
+    },
+    {
+      "step_code": "STEP_019_GATE_OUT_WAREHOUSE",
+      "order_index": 19
+    },
+    {
+      "step_code": "STEP_020_HANDOFF_CARRIER",
+      "order_index": 20
+    },
+    {
+      "step_code": "STEP_021_CARRIER_ACCEPTED",
+      "order_index": 21
+    },
+    {
+      "step_code": "STEP_022_DEPART_WAREHOUSE",
+      "order_index": 22
+    },
+    {
+      "step_code": "STEP_023_WAREHOUSE_CLOSEOUT",
+      "order_index": 23
+    }
+  ]
+}

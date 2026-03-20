@@ -1,0 +1,7 @@
+﻿artifact,source_exists,copied,backup_path
+model.pkl,True,True,D:\logistics_AI\model\process_models_versioned\IMPORT_CUSTOMS_CLEARANCE__backup__20260314_132439\model.pkl
+scaler.pkl,True,True,D:\logistics_AI\model\process_models_versioned\IMPORT_CUSTOMS_CLEARANCE__backup__20260314_132439\scaler.pkl
+baselines.json,True,True,D:\logistics_AI\model\process_models_versioned\IMPORT_CUSTOMS_CLEARANCE__backup__20260314_132439\baselines.json
+feature_schema.json,True,True,D:\logistics_AI\model\process_models_versioned\IMPORT_CUSTOMS_CLEARANCE__backup__20260314_132439\feature_schema.json
+score_quantiles.json,True,True,D:\logistics_AI\model\process_models_versioned\IMPORT_CUSTOMS_CLEARANCE__backup__20260314_132439\score_quantiles.json
+train_summary.json,True,True,D:\logistics_AI\model\process_models_versioned\IMPORT_CUSTOMS_CLEARANCE__backup__20260314_132439\train_summary.json

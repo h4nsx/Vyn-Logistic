@@ -1,0 +1,2 @@
+reference_months,recent_months,avg_risk_ref,avg_risk_recent,avg_risk_delta,p95_risk_ref,p95_risk_recent,p95_risk_delta,high_risk_rate_ref,high_risk_rate_recent,high_risk_rate_delta,critical_rate_ref,critical_rate_recent,critical_rate_delta
+"2025-04, 2025-05, 2025-06","2025-04, 2025-05, 2025-06",49.506892002936546,49.506892002936546,0.0,94.33333333333333,94.33333333333333,0.0,20.007350057761297,20.007350057761297,0.0,18.997562116449814,18.997562116449814,0.0

@@ -1,0 +1,7 @@
+﻿trigger_name,observed_metric,observed_value,threshold_rule,triggered
+qc_pressure_shift,qc_ratio mean change,0.0,change >= 0.15,False
+staging_congestion_surge,staging_ratio mean change,0.0,change >= 0.15,False
+internal_wait_shift,max_gap_to_next_min p95 change,,change >= 0.20,
+rework_shift,rework_index mean change,,change >= 0.20,
+flow_balance_drift,flow_balance_index mean change,,abs(change) >= 0.15,
+registry_change,registry step count,23.0,manual review,

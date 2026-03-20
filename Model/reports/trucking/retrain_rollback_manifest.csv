@@ -1,0 +1,2 @@
+﻿process_code,rollback_source_dir,rollback_target_dir,rollback_rule
+TRUCKING_DELIVERY_FLOW,D:\logistics_AI\model\process_models_versioned\TRUCKING_DELIVERY_FLOW__backup__20260314_134841,D:\logistics_AI\model\process_models\TRUCKING_DELIVERY_FLOW,Nếu candidate model không đạt acceptance criteria thì copy artifact backup về current_model_dir

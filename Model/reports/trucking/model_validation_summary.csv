@@ -1,0 +1,2 @@
+﻿process_code,case_count,avg_risk_score,avg_anomaly_score,anomaly_count,anomaly_rate,avg_total_process_time_min,avg_cycle_time_min,avg_delivery_attempt_count,avg_hub_depot_touch_count,dominant_delay_component,dominant_ratio_component,avg_operational_issue_count,max_risk_score
+TRUCKING_DELIVERY_FLOW,12000,49.5,0.408617,2400,0.2,848.914,848.914,2.0,8.0,linehaul,linehaul,2.0,100

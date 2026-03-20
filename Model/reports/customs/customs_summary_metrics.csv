@@ -1,0 +1,9 @@
+metric,value
+process_code,IMPORT_CUSTOMS_CLEARANCE
+num_step_codes,16
+validated_event_rows,68576
+num_cases,4286
+num_features,25
+dropped_cases,0
+repeated_case_count,0
+missing_step_cases,0

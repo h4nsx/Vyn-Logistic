@@ -1,0 +1,9 @@
+metric,value
+process_code,TRUCKING_DELIVERY_FLOW
+num_step_codes,29
+validated_event_rows,348000
+num_cases,12000
+num_features,38
+dropped_cases,0
+repeated_case_count,0
+missing_step_cases,0

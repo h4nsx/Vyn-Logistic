@@ -1,0 +1,6 @@
+﻿track,row_count,feature_count,score_mean,score_std,score_min,score_p80,score_p95,score_p99,score_max,tail_gap_p99_p95,business_focus
+CASE_FILE_PATH,4286,16,0.478827,0.056231,0.430169,0.503532,0.595071,0.717244,0.799896,0.122173,Branch path of customs case file from declaration to release
+AMENDMENT_LOOP,4286,14,0.447348,0.05183,0.37624,0.48529,0.550488,0.614183,0.736159,0.063695,Resubmission / amendment / recheck loop intensity
+EXAM_ESCALATION,4286,13,0.460649,0.06523,0.391089,0.49724,0.613166,0.671027,0.776434,0.05786,Inspection / hold escalation and customs waiting pressure
+RELEASE_GATE,4286,9,0.448292,0.062727,0.374422,0.485985,0.590699,0.660162,0.754193,0.069464,Delay at release gate and final clearance completion
+FULL_CLEARANCE_CONTROL,4286,55,0.450059,0.052677,0.376868,0.483118,0.560608,0.632869,0.71672,0.072261,Combined control view of path + loop + exam + release gate + context

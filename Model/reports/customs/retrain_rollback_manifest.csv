@@ -1,0 +1,2 @@
+﻿process_code,rollback_source_dir,rollback_target_dir,rollback_rule
+IMPORT_CUSTOMS_CLEARANCE,D:\logistics_AI\model\process_models_versioned\IMPORT_CUSTOMS_CLEARANCE__backup__20260314_132439,D:\logistics_AI\model\process_models\IMPORT_CUSTOMS_CLEARANCE,Nếu candidate model không đạt acceptance criteria thì copy artifact backup về current_model_dir

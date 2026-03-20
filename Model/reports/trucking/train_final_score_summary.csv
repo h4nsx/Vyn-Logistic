@@ -1,0 +1,2 @@
+﻿case_count,feature_count,score_mean,score_std,score_p80,score_p95,score_p99,train_anomaly_rate
+12000,20,0.408617,0.042697,0.432228,0.490547,0.568975,0.05

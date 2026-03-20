@@ -1,0 +1,2 @@
+﻿process_code,retrain_feature_set,include_context_numeric,n_estimators,contamination,max_samples,max_features,random_state
+WAREHOUSE_FULFILLMENT,CONGESTION,False,250,0.05,0.8,0.8,42

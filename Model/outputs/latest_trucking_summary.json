@@ -1,0 +1,20 @@
+{
+  "customs_result": {
+    "process_id": 3,
+    "case_count": 50,
+    "avg_risk_score": 52.76,
+    "avg_anomaly_score": 0.434757,
+    "anomaly_count": 13,
+    "anomaly_rate": 0.26,
+    "dominant_step_index": 10,
+    "dominant_step_case_count": 7,
+    "dominant_step_case_rate": 0.14,
+    "avg_dominant_step_duration_min": 552.902,
+    "avg_total_process_time_min": 3053.974,
+    "process_specific": {
+      "avg_inspection_delay_min": 1098.62,
+      "document_recheck_rate": 1,
+      "avg_clearance_cycle_time_min": 2939.713
+    }
+  }
+}

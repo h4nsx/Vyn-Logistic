@@ -1,0 +1,5 @@
+rule,value,threshold,triggered
+Average risk delta,0.0,5.0,False
+P95 risk delta,0.0,5.0,False
+High-risk rate delta,0.0,5.0,False
+Critical rate delta,0.0,2.0,False
