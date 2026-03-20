@@ -1,8 +1,10 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pymongo.errors import PyMongoError
 
 from app.config import settings
 from app.database import create_indexes, close_connection
@@ -47,6 +49,18 @@ app.include_router(process.router, prefix="/api", tags=["Process"])
 app.include_router(results.router, prefix="/api", tags=["Results"])
 app.include_router(entity.router, prefix="/api", tags=["Entity"])
 app.include_router(auth.router, prefix="/api", tags=["Auth"])
+
+
+@app.exception_handler(PyMongoError)
+async def pymongo_error_handler(_: Request, exc: PyMongoError):
+    logger.error(f"MongoDB operation failed: {exc}")
+    return JSONResponse(
+        status_code=503,
+        content={
+            "status": "error",
+            "message": "Database is unavailable. Check MongoDB credentials and Atlas Network Access.",
+        },
+    )
 
 
 @app.get("/", tags=["Health"])
