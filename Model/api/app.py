@@ -59,13 +59,6 @@ PROCESS_BATCH_KEY_MAP = {
     "IMPORT_CUSTOMS_CLEARANCE": "customs_result",
 }
 
-# process_code -> integrated branch label
-PROCESS_CODE_TO_BRANCH = {
-    "TRUCKING_DELIVERY_FLOW": "trucking",
-    "WAREHOUSE_FULFILLMENT": "warehouse",
-    "IMPORT_CUSTOMS_CLEARANCE": "customs",
-}
-
 
 # ======================================================
 # Entity influence config
@@ -109,7 +102,7 @@ PROCESS_ENTITY_BLEND = {
 # Lifespan
 # ======================================================
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     print("✅ Logistics AI app started.")
     yield
 
@@ -152,6 +145,43 @@ def process_info():
 # ======================================================
 # Shared helpers
 # ======================================================
+
+def _compress_process_result_v2(process_code: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+
+    ps = payload.get("process_specific", {})
+
+    base = {
+        "case_count": payload.get("case_count", 0),
+        "avg_risk_score": payload.get("avg_risk_score", 0.0),
+        "anomaly_rate": payload.get("anomaly_rate", 0.0),
+    }
+
+    if process_code == "TRUCKING_DELIVERY_FLOW":
+        base.update({
+            "avg_transit_delay_min": ps.get("avg_transit_delay_min", 0.0),
+            "avg_hub_touch_count": ps.get("avg_hub_touch_count", 0.0),
+            "avg_delivery_attempt_count": ps.get("avg_delivery_attempt_count", 0.0),
+        })
+        return base
+
+    if process_code == "WAREHOUSE_FULFILLMENT":
+        base.update({
+            "avg_pick_pack_time_min": ps.get("avg_pick_pack_time_min", 0.0),
+            "qc_rework_rate": ps.get("qc_rework_rate", 0.0),
+            "avg_staging_wait_min": ps.get("avg_staging_wait_min", 0.0),
+        })
+        return base
+
+    if process_code == "IMPORT_CUSTOMS_CLEARANCE":
+        base.update({
+            "avg_inspection_delay_min": ps.get("avg_inspection_delay_min", 0.0),
+            "document_recheck_rate": ps.get("document_recheck_rate", 0.0),
+            "avg_clearance_cycle_time_min": ps.get("avg_clearance_cycle_time_min", 0.0),
+        })
+        return base
+
+    return base
+
 def _normalize_process_code(process_code: str) -> str:
     s = str(process_code).strip().upper()
 
@@ -162,6 +192,20 @@ def _normalize_process_code(process_code: str) -> str:
         return PROCESS_ALIAS_MAP[s]
 
     raise HTTPException(status_code=400, detail=f"Unknown process_code: {process_code}")
+
+
+def _normalize_process_code_value(value: Any) -> str:
+    s = str(value).strip().upper()
+    if not s:
+        raise ValueError("Empty process_code")
+
+    if s in PROCESS_ID_MAP:
+        return s
+
+    if s in PROCESS_ALIAS_MAP:
+        return PROCESS_ALIAS_MAP[s]
+
+    raise ValueError(f"Unsupported process_code: {value}")
 
 
 def _entity_response(result_df: pd.DataFrame, metadata: Dict[str, Any]) -> Dict[str, Any]:
@@ -192,7 +236,7 @@ def _extract_entity_risk_series(result_df: pd.DataFrame) -> pd.Series:
 
     for col in candidate_cols:
         if col in result_df.columns:
-            s = pd.to_numeric(result_df[col], errors="coerce")
+            s = pd.Series(pd.to_numeric(result_df[col], errors="coerce"))
             if s.notna().any():
                 s = s.fillna(0.0)
                 if float(s.max()) <= 1.0:
@@ -203,7 +247,7 @@ def _extract_entity_risk_series(result_df: pd.DataFrame) -> pd.Series:
     if not numeric_cols:
         raise ValueError("Could not find any numeric score column in entity inference output")
 
-    s = pd.to_numeric(result_df[numeric_cols[0]], errors="coerce").fillna(0.0)
+    s = pd.Series(pd.to_numeric(result_df[numeric_cols[0]], errors="coerce")).fillna(0.0)
     if float(s.max()) <= 1.0:
         s = s * 100.0
     return s.clip(0.0, 100.0)
@@ -321,16 +365,12 @@ def _fuse_process_with_entity(process_risk: float, entity_risk: Optional[float])
 
 def _extract_process_rows_from_any_csv(df: pd.DataFrame, process_code: str) -> pd.DataFrame:
     """
-    Accept either:
-    1) native process-event CSV
-    2) integrated CSV containing entity rows + process_event rows
-
-    Returns a DataFrame that always contains process rows.
-    Keeps scenario_id internally if present, but output schema is unaffected.
+    Backward-compatible extractor for old explicit process endpoints.
+    If row_group exists, it will use only process_event rows.
+    For explicit endpoints, process_code is still provided by caller.
     """
     df = df.copy()
 
-    # Integrated CSV
     if "row_group" in df.columns:
         df["row_group"] = df["row_group"].astype(str).str.strip().str.lower()
         df = df[df["row_group"] == "process_event"].copy()
@@ -341,18 +381,6 @@ def _extract_process_rows_from_any_csv(df: pd.DataFrame, process_code: str) -> p
                 detail="Integrated CSV contains no process_event rows",
             )
 
-        branch = PROCESS_CODE_TO_BRANCH[process_code]
-
-        if "process_branch" in df.columns:
-            df["process_branch"] = df["process_branch"].astype(str).str.strip().str.lower()
-            df = df[df["process_branch"] == branch].copy()
-
-            if df.empty:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Integrated CSV contains no process_event rows for branch={branch}",
-                )
-
         if "process_code" not in df.columns:
             df["process_code"] = process_code
         else:
@@ -360,7 +388,6 @@ def _extract_process_rows_from_any_csv(df: pd.DataFrame, process_code: str) -> p
             df.loc[df["process_code"] == "", "process_code"] = process_code
             df.loc[df["process_code"].isna(), "process_code"] = process_code
 
-    # Native process CSV
     else:
         if "process_code" not in df.columns:
             df["process_code"] = process_code
@@ -386,6 +413,402 @@ def _extract_process_rows_from_any_csv(df: pd.DataFrame, process_code: str) -> p
     out["process_code"] = out["process_code"].astype(str).str.strip()
 
     return out.reset_index(drop=True)
+
+
+def _extract_integrated_process_df(raw_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Extract and normalize process_event rows from an integrated CSV.
+    Detection is based ONLY on process_code.
+    """
+    if "row_group" not in raw_df.columns:
+        raise HTTPException(status_code=400, detail="Missing required column: row_group")
+
+    df = raw_df.copy()
+    df["row_group"] = df["row_group"].fillna("").astype(str).str.strip().str.lower()
+    process_df = df[df["row_group"] == "process_event"].copy()
+
+    if process_df.empty:
+        raise HTTPException(status_code=400, detail="No process_event rows found in file")
+
+    required_cols = ["scenario_id", "process_code", "case_id", "step_code", "start_time", "end_time"]
+    missing = [c for c in required_cols if c not in process_df.columns]
+    if missing:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Missing required process columns: {missing}",
+        )
+
+    process_df["scenario_id"] = process_df["scenario_id"].fillna("").astype(str).str.strip()
+    process_df["process_code"] = process_df["process_code"].fillna("").astype(str).str.strip()
+    process_df["case_id"] = process_df["case_id"].fillna("").astype(str).str.strip()
+    process_df["step_code"] = process_df["step_code"].fillna("").astype(str).str.strip()
+    process_df["start_time"] = process_df["start_time"].fillna("").astype(str).str.strip()
+    process_df["end_time"] = process_df["end_time"].fillna("").astype(str).str.strip()
+
+    invalid_process_codes = []
+    normalized_codes: List[str] = []
+    for val in process_df["process_code"].tolist():
+        try:
+            normalized_codes.append(_normalize_process_code_value(val))
+        except Exception:
+            invalid_process_codes.append(val)
+
+    if invalid_process_codes:
+        bad_vals = sorted(set([str(x) for x in invalid_process_codes if str(x).strip()]))
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid process_code values found: {bad_vals}",
+        )
+
+    process_df["process_code"] = normalized_codes
+
+    for c in ["scenario_id", "case_id", "step_code", "start_time", "end_time"]:
+        missing_count = int((process_df[c] == "").sum())
+        if missing_count > 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Process rows missing {c}: {missing_count}",
+            )
+
+    return process_df[
+        ["scenario_id", "process_code", "case_id", "step_code", "start_time", "end_time"]
+    ].reset_index(drop=True)
+
+
+def _validate_integrated_csv_structure(raw_df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Validate integrated CSV structure and report compact validation info.
+
+    Public response:
+    - show entity summary again
+    - remove detected_processes
+    """
+    errors: List[str] = []
+    warnings: List[str] = []
+
+    summary: Dict[str, Any] = {
+        "total_rows": int(len(raw_df)),
+        "entity_rows": 0,
+        "process_event_rows": 0,
+        "scenario_count": 0,
+        "entity_type_counts": {},
+    }
+
+    process_row_counts: Dict[str, int] = {}
+    process_case_counts: Dict[str, int] = {}
+
+    required_common_cols = ["row_group", "scenario_id"]
+    missing_common = [c for c in required_common_cols if c not in raw_df.columns]
+    if missing_common:
+        errors.append(f"Missing common columns: {missing_common}")
+        return {
+            "valid": False,
+            "errors": errors,
+            "warnings": warnings,
+            "summary": summary,
+            "process_row_counts": process_row_counts,
+            "process_case_counts": process_case_counts,
+        }
+
+    df = raw_df.copy()
+    df["row_group"] = df["row_group"].fillna("").astype(str).str.strip().str.lower()
+    df["scenario_id"] = df["scenario_id"].fillna("").astype(str).str.strip()
+
+    summary["scenario_count"] = int(df.loc[df["scenario_id"] != "", "scenario_id"].nunique())
+
+    allowed_row_groups = {"entity", "process_event"}
+    invalid_row_groups = sorted(set(df["row_group"]) - allowed_row_groups - {""})
+    if invalid_row_groups:
+        errors.append(f"Invalid row_group values found: {invalid_row_groups}")
+
+    entity_df = df[df["row_group"] == "entity"].copy()
+    process_df = df[df["row_group"] == "process_event"].copy()
+
+    summary["entity_rows"] = int(len(entity_df))
+    summary["process_event_rows"] = int(len(process_df))
+
+    if entity_df.empty:
+        warnings.append("No entity rows found.")
+    if process_df.empty:
+        errors.append("No process_event rows found.")
+
+    # ---------- entity checks ----------
+    if not entity_df.empty:
+        if "entity_type" not in entity_df.columns:
+            errors.append("Missing entity_type column for entity rows.")
+        else:
+            entity_df["entity_type"] = (
+                entity_df["entity_type"].fillna("").astype(str).str.strip().str.lower()
+            )
+
+            entity_counts = entity_df["entity_type"].value_counts().to_dict()
+            summary["entity_type_counts"] = {
+                str(k): int(v) for k, v in entity_counts.items()
+            }
+
+            allowed_entity_types = {"driver", "fleet", "ops"}
+            invalid_entity_types = sorted(set(entity_df["entity_type"]) - allowed_entity_types - {""})
+            if invalid_entity_types:
+                errors.append(f"Invalid entity_type values found: {invalid_entity_types}")
+
+            for entity_type, feature_cols in [
+                ("driver", DRIVER_FEATURE_COLS),
+                ("fleet", FLEET_FEATURE_COLS),
+                ("ops", OPS_FEATURE_COLS),
+            ]:
+                part = entity_df[entity_df["entity_type"] == entity_type].copy()
+                if part.empty:
+                    warnings.append(f"No {entity_type} rows found.")
+                    continue
+
+                missing_feature_cols = [c for c in feature_cols if c not in entity_df.columns]
+                if missing_feature_cols:
+                    errors.append(f"Missing {entity_type} feature columns: {missing_feature_cols}")
+
+        missing_entity_scenario = int((entity_df["scenario_id"] == "").sum())
+        if missing_entity_scenario > 0:
+            errors.append(f"Entity rows missing scenario_id: {missing_entity_scenario}")
+
+    # ---------- process checks ----------
+    if not process_df.empty:
+        required_process_cols = ["process_code", "case_id", "step_code", "start_time", "end_time"]
+        missing_process_cols = [c for c in required_process_cols if c not in process_df.columns]
+        if missing_process_cols:
+            errors.append(f"Missing required process columns: {missing_process_cols}")
+        else:
+            process_df["process_code"] = (
+                process_df["process_code"].fillna("").astype(str).str.strip()
+            )
+            process_df["case_id"] = process_df["case_id"].fillna("").astype(str).str.strip()
+            process_df["step_code"] = process_df["step_code"].fillna("").astype(str).str.strip()
+            process_df["start_time"] = process_df["start_time"].fillna("").astype(str).str.strip()
+            process_df["end_time"] = process_df["end_time"].fillna("").astype(str).str.strip()
+
+            for c in ["scenario_id", "process_code", "case_id", "step_code", "start_time", "end_time"]:
+                missing_count = int((process_df[c] == "").sum())
+                if missing_count > 0:
+                    errors.append(f"Process rows missing {c}: {missing_count}")
+
+            normalized_codes: List[str] = []
+            invalid_codes: List[str] = []
+
+            for val in process_df["process_code"].tolist():
+                try:
+                    normalized_codes.append(_normalize_process_code_value(val))
+                except Exception:
+                    invalid_codes.append(val)
+
+            if invalid_codes:
+                bad_vals = sorted(set([str(x) for x in invalid_codes if str(x).strip()]))
+                errors.append(f"Invalid process_code values found: {bad_vals}")
+            else:
+                process_df["process_code"] = normalized_codes
+                process_row_counts = {
+                    code: int(cnt)
+                    for code, cnt in process_df["process_code"].value_counts().to_dict().items()
+                }
+                process_case_counts = {
+                    code: int(cnt)
+                    for code, cnt in process_df.groupby("process_code")["case_id"].nunique().to_dict().items()
+                }
+
+    # ---------- cross-check scenario matching ----------
+    entity_scenarios = set(entity_df.loc[entity_df["scenario_id"] != "", "scenario_id"])
+    process_scenarios = set(process_df.loc[process_df["scenario_id"] != "", "scenario_id"])
+
+    if entity_scenarios and process_scenarios:
+        only_entity = entity_scenarios - process_scenarios
+        only_process = process_scenarios - entity_scenarios
+
+        if only_entity:
+            warnings.append(
+                f"Some scenario_id values appear only in entity rows but not in process_event rows. Count={len(only_entity)}"
+            )
+        if only_process:
+            warnings.append(
+                f"Some scenario_id values appear only in process_event rows but not in entity rows. Count={len(only_process)}"
+            )
+
+    return {
+        "valid": len(errors) == 0,
+        "errors": errors,
+        "warnings": warnings,
+        "summary": summary,
+        "process_row_counts": process_row_counts,
+        "process_case_counts": process_case_counts,
+    }
+
+
+def _build_overall_result(process_results: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+
+    if not process_results:
+        return {
+            "total_case_count": 0,
+            "avg_risk_score": 0.0,
+            "avg_anomaly_score": 0.0,
+            "anomaly_count": 0,
+            "anomaly_rate": 0.0,
+            "avg_total_process_time_min": 0.0,
+        }
+
+    total_case_count = int(sum(int(v["case_count"]) for v in process_results.values()))
+    anomaly_count = int(sum(int(v["anomaly_count"]) for v in process_results.values()))
+
+    if total_case_count <= 0:
+        return {
+            "total_case_count": 0,
+            "avg_risk_score": 0.0,
+            "avg_anomaly_score": 0.0,
+            "anomaly_count": 0,
+            "anomaly_rate": 0.0,
+            "avg_total_process_time_min": 0.0,
+        }
+
+    weighted_risk_sum = sum(
+        float(v["avg_risk_score"]) * int(v["case_count"])
+        for v in process_results.values()
+    )
+
+    weighted_anomaly_score_sum = sum(
+        float(v["avg_anomaly_score"]) * int(v["case_count"])
+        for v in process_results.values()
+    )
+
+    weighted_total_time_sum = sum(
+        float(v["avg_total_process_time_min"]) * int(v["case_count"])
+        for v in process_results.values()
+    )
+
+    avg_risk_score = round(float(weighted_risk_sum / total_case_count), 3)
+    avg_anomaly_score = round(float(weighted_anomaly_score_sum / total_case_count), 6)
+    anomaly_rate = round(float(anomaly_count / total_case_count), 4)
+    avg_total_process_time_min = round(float(weighted_total_time_sum / total_case_count), 3)
+
+    return {
+        "total_case_count": total_case_count,
+        "avg_risk_score": avg_risk_score,
+        "avg_anomaly_score": avg_anomaly_score,
+        "anomaly_count": anomaly_count,
+        "anomaly_rate": anomaly_rate,
+        "avg_total_process_time_min": avg_total_process_time_min,
+    }
+
+# ======================================================
+# Validation / Unified integrated CSV endpoints
+# ======================================================
+@app.post("/validate/integrated_csv")
+async def validate_integrated_csv(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        raw_df = pd.read_csv(io.BytesIO(contents))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid CSV file: {e}")
+
+    return _validate_integrated_csv_structure(raw_df)
+
+
+@app.post("/analyze/integrated_csv")
+async def analyze_integrated_csv(file: UploadFile = File(...)):
+
+    try:
+        contents = await file.read()
+        raw_df = pd.read_csv(io.BytesIO(contents))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid CSV file: {e}")
+
+    validation_report = _validate_integrated_csv_structure(raw_df)
+    if not validation_report["valid"]:
+        raise HTTPException(status_code=400, detail=validation_report)
+
+    entity_score_map = _compute_entity_score_map_from_integrated(raw_df)
+    process_df = _extract_integrated_process_df(raw_df)
+
+    full_process_results: Dict[str, Dict[str, Any]] = {}
+    compact_process_results: Dict[str, Dict[str, Any]] = {}
+
+    for process_code in sorted(process_df["process_code"].drop_duplicates().tolist()):
+        try:
+            art = _get_process_artifacts(process_code)
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Process artifacts load failed for {process_code}: {e}",
+            )
+
+        one_process_df = process_df[process_df["process_code"] == process_code].copy()
+
+        case_to_scenario = (
+            one_process_df[["case_id", "scenario_id"]]
+            .dropna()
+            .drop_duplicates()
+            .assign(
+                case_id=lambda d: d["case_id"].astype(str),
+                scenario_id=lambda d: d["scenario_id"].astype(str),
+            )
+            .set_index("case_id")["scenario_id"]
+            .to_dict()
+        )
+
+        df_for_validate = one_process_df[
+            ["process_code", "case_id", "step_code", "start_time", "end_time"]
+        ].copy()
+
+        df_valid, vrep = validate_events_df(
+            df_for_validate,
+            process_code=process_code,
+            valid_steps=art.step_codes,
+            allow_unknown_steps=False,
+        )
+        if not vrep.ok:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "process_code": process_code,
+                    "errors": vrep.errors,
+                    "warnings": vrep.warnings,
+                },
+            )
+
+        case_ids = df_valid["case_id"].astype(str).drop_duplicates().tolist()
+        results: List[Dict[str, Any]] = []
+
+        for cid in case_ids:
+            one_case = df_valid[df_valid["case_id"].astype(str) == cid].copy()
+            try:
+                out = _analyze_single_case_df(process_code, one_case, art)
+                if out is None:
+                    continue
+
+                scenario_id = case_to_scenario.get(str(cid))
+                entity_risk = entity_score_map.get(str(scenario_id)) if scenario_id is not None else None
+                fused_risk = _fuse_process_with_entity(out["risk_score"], entity_risk)
+
+                out["risk_score"] = fused_risk
+                out["is_anomaly"] = bool(fused_risk >= 80)
+
+                results.append(out)
+            except Exception:
+                continue
+
+        if not results:
+            continue
+
+        batch_block = _build_batch_output(process_code, results)
+        wrapper_key = PROCESS_BATCH_KEY_MAP[process_code]
+        full_payload = batch_block[wrapper_key]
+
+        full_process_results[wrapper_key] = full_payload
+        compact_process_results[wrapper_key] = _compress_process_result_v2(process_code, full_payload)
+
+    if not full_process_results:
+        raise HTTPException(status_code=400, detail="No valid process results were produced from file")
+
+    overall_result = _build_overall_result(full_process_results)
+
+    return {
+        "overall_result": overall_result,
+        "process_results": compact_process_results,
+    }
 
 
 # ======================================================
@@ -454,7 +877,7 @@ def entity_ops_predict_batch(req: EntityBatchPredictRequest):
 
 
 # ======================================================
-# Process AI endpoints
+# Process AI endpoints (explicit / backward-compatible)
 # ======================================================
 class EventRow(BaseModel):
     step_code: str
@@ -939,16 +1362,8 @@ async def process_analyze_batch_file_numeric(
     max_cases: Optional[int] = None,
 ):
     """
-    Analyze many cases from uploaded CSV.
-
-    Supported input formats:
-    1) Native process-event CSV
-    2) Integrated CSV containing entity rows + process_event rows
-
-    Output schema remains unchanged:
-    - trucking_result
-    - warehouse_result
-    - customs_result
+    Explicit per-process batch analysis.
+    Kept for backward compatibility / debugging.
     """
     process_code = _normalize_process_code(process_code)
 
@@ -1026,5 +1441,4 @@ async def process_analyze_batch_file_numeric(
     if not results:
         raise HTTPException(status_code=400, detail="No valid cases analyzed from file")
 
-    # Keep output schema unchanged
     return _build_batch_output(process_code, results)
