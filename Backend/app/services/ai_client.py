@@ -28,7 +28,7 @@ async def analyze_batch_file(
 
     async with httpx.AsyncClient(timeout=BATCH_TIMEOUT) as client:
         response = await client.post(
-            f"{AI_BASE_URL}/process/analyze_batch_file_numeric",
+            f"{AI_BASE_URL}/api/upload",
             params=params,
             files={"file": (filename, file_bytes, "text/csv")},
         )
@@ -49,7 +49,7 @@ async def analyze_case_file(
 
     async with httpx.AsyncClient(timeout=SINGLE_TIMEOUT) as client:
         response = await client.post(
-            f"{AI_BASE_URL}/process/analyze_case_file_numeric",
+            f"{AI_BASE_URL}/api/process/analyze-file",
             params=params,
             files={"file": (filename, file_bytes, "text/csv")},
         )
@@ -69,7 +69,7 @@ async def analyze_case_json(
 
     async with httpx.AsyncClient(timeout=SINGLE_TIMEOUT) as client:
         response = await client.post(
-            f"{AI_BASE_URL}/process/analyze_case_numeric",
+            f"{AI_BASE_URL}/api/process/analyze",
             json=payload,
         )
         response.raise_for_status()
@@ -83,7 +83,7 @@ async def predict_entity(
     """Predict risk for a single entity (driver / fleet / ops)."""
     async with httpx.AsyncClient(timeout=ENTITY_TIMEOUT) as client:
         response = await client.post(
-            f"{AI_BASE_URL}/entity/{entity_type}/predict",
+            f"{AI_BASE_URL}/api/entity/{entity_type}/predict",
             json={"data": data},
         )
         response.raise_for_status()
@@ -97,8 +97,36 @@ async def predict_entity_batch(
     """Predict risk for multiple entities in one request."""
     async with httpx.AsyncClient(timeout=ENTITY_TIMEOUT) as client:
         response = await client.post(
-            f"{AI_BASE_URL}/entity/{entity_type}/predict_batch",
+            f"{AI_BASE_URL}/api/entity/{entity_type}/predict_batch",
             json={"rows": rows},
+        )
+        response.raise_for_status()
+        return response.json()
+
+
+async def validate_integrated_csv(
+    file_bytes: bytes,
+    filename: str,
+) -> dict[str, Any]:
+    """Forward integrated CSV to AI model for validation."""
+    async with httpx.AsyncClient(timeout=SINGLE_TIMEOUT) as client:
+        response = await client.post(
+            f"{AI_BASE_URL}/api/validate/integrated_csv",
+            files={"file": (filename, file_bytes, "text/csv")},
+        )
+        response.raise_for_status()
+        return response.json()
+
+
+async def analyze_integrated_csv(
+    file_bytes: bytes,
+    filename: str,
+) -> dict[str, Any]:
+    """Forward integrated CSV to AI model for analysis."""
+    async with httpx.AsyncClient(timeout=BATCH_TIMEOUT) as client:
+        response = await client.post(
+            f"{AI_BASE_URL}/api/analyze/integrated_csv",
+            files={"file": (filename, file_bytes, "text/csv")},
         )
         response.raise_for_status()
         return response.json()
