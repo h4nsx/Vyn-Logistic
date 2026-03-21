@@ -8,7 +8,7 @@ from pymongo.errors import PyMongoError
 
 from app.config import settings
 from app.database import create_indexes, close_connection
-from app.api import upload, anomalies, process, results, entity, auth, integrated_csv
+from app.api import upload, anomalies, process, results, entity, auth, integrated_csv_proxy
 
 logging.basicConfig(
     level=logging.INFO,
@@ -49,7 +49,7 @@ app.include_router(process.router, prefix="/api", tags=["Process"])
 app.include_router(results.router, prefix="/api", tags=["Results"])
 app.include_router(entity.router, prefix="/api", tags=["Entity"])
 app.include_router(auth.router, prefix="/api", tags=["Auth"])
-app.include_router(integrated_csv.router, prefix="/api", tags=["Integrated CSV"])
+app.include_router(integrated_csv_proxy.router, prefix="/api", tags=["Integrated CSV"])
 
 
 @app.exception_handler(PyMongoError)
