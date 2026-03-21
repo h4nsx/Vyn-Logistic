@@ -20,26 +20,31 @@ export function Table<T extends { id: string | number }>({
   className 
 }: TableProps<T>) {
   return (
-    <div className={cn("w-full overflow-x-auto border border-border rounded-2xl bg-white", className)}>
+    <div className={cn("w-full overflow-x-auto border border-border rounded-2xl bg-white shadow-card", className)}>
       <table className="w-full text-sm text-left border-collapse">
         <thead>
-          <tr className="bg-surface border-b border-border">
+          <tr className="bg-surface/70 border-b border-border">
             {columns.map((col) => (
-              <th key={col.key} className="px-6 py-4 font-semibold text-navy uppercase tracking-wider text-[11px]">
+              <th key={col.key} className="px-6 py-4 font-semibold text-content-secondary uppercase tracking-wider text-[11px]">
                 {col.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-border">
-          {rows.map((row) => (
+        <tbody>
+          {rows.map((row, idx) => (
             <tr 
               key={row.id} 
               onClick={() => onRowClick?.(row)}
               className={cn(
-                "transition-colors group",
-                onRowClick ? "cursor-pointer hover:bg-surface" : ""
+                "transition-all duration-150 group border-b border-border last:border-b-0",
+                onRowClick 
+                  ? "cursor-pointer hover:bg-navy-50/30 active:bg-navy-50/50" 
+                  : "",
+                // Subtle alternating row tint
+                idx % 2 === 1 && "bg-surface/30"
               )}
+              style={{ animationDelay: `${idx * 30}ms` }}
             >
               {columns.map((col) => (
                 <td key={col.key} className="px-6 py-4 text-content-secondary">

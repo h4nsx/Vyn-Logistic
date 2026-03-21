@@ -1,58 +1,50 @@
-import { apiClient } from '../../../shared/lib/axios';
+import { apiClient, mlClient } from '../../../shared/lib/axios';
 
 export const datasetService = {
-  // 1. Upload
+   validateCsv: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    // POST to VITE_API_ML_URL/validate/integrated_csv
+    const { data } = await mlClient.post('/validate/integrated_csv', formData);
+    return data; // Expected: { columns: string[], suggestions?: any }
+  },
+
+  // 2. Final Upload to Main Backend
+  uploadAndAnalyze: async (file: File, mapping: Record<string, string>) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('mapping', JSON.stringify(mapping));
+    
+    const { data } = await apiClient.post('/upload', formData);
+    return data;
+  },
+
   upload: async (file: File, onProgress: (p: number) => void) => {
     const formData = new FormData();
     formData.append('file', file);
-    const { data } = await apiClient.post('/datasets/upload', formData, {
-      onUploadProgress: (progressEvent) => {
-        const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 100));
-        onProgress(percentCompleted);
+    const { data } = await apiClient.post('/upload', formData, {
+      onUploadProgress: (e) => {
+        const progress = Math.round((e.loaded * 100) / (e.total || 100));
+        onProgress(progress);
       },
     });
-    return data; // Returns { id, columns }
-  },
-
-  // 2. Confirm Mapping
-  confirmMapping: async (id: string, mapping: Record<string, string>) => {
-    const { data } = await apiClient.post(`/datasets/${id}/map`, { mapping });
-    return data; // Returns { suggestedWorkflow }
-  },
-
-  // 3. Confirm Workflow
-  confirmWorkflow: async (id: string, workflowType: string) => {
-    const { data } = await apiClient.post(`/datasets/${id}/workflow`, { workflowType });
     return data;
   },
 
-  // 4. Trigger Analysis
-  startAnalysis: async (id: string) => {
-    const { data } = await apiClient.post(`/datasets/${id}/analyze`);
+  // This is the function the page needs
+  getAllUploads: async () => {
+    const { data } = await apiClient.get('/uploads');
     return data;
   },
 
-  // 5. Get Results
-  getResults: async (id: string) => {
-    const { data } = await apiClient.get(`/datasets/${id}/results`);
-    return data;
-  },
-
-  getAll: async () => {
-    try {
-      const { data } = await apiClient.get('/datasets');
-      return data;
-    } catch (error) {
-      // Mock Fallback for UI development
-      return [
-        { id: 'ds-1', name: 'Q1_Trucking_Data.csv', status: 'Analyzed', rows: 12400, createdAt: '2024-03-10T10:00:00Z', riskScore: 24 },
-        { id: 'ds-2', name: 'Warehouse_LHR_March.csv', status: 'Processing', rows: 8500, createdAt: '2024-03-12T14:30:00Z', riskScore: null },
-        { id: 'ds-3', name: 'Customs_Entry_Logs.csv', status: 'Failed', rows: 420, createdAt: '2024-03-13T09:15:00Z', riskScore: null },
-      ];
-    }
-  },
-
+  // Add the missing delete method
   delete: async (id: string) => {
-    await apiClient.delete(`/datasets/${id}`);
+    // Assuming the endpoint is /uploads/{id} or similar
+    await apiClient.delete(`/uploads/${id}`);
+  },
+
+  getCaseDetail: async (caseId: string) => {
+    const { data } = await apiClient.get(`/process/${caseId}`);
+    return data;
   }
 };

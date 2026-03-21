@@ -7,7 +7,7 @@ export function MainLayout() {
     <div className="min-h-screen bg-surface flex flex-col">
       <Navbar />
       
-      <main className="flex-grow pt-20"> {/* pt-20 offsets the fixed navbar */}
+      <main className="flex-grow"> {/* Navbar is fixed/overlay — pages handle their own top spacing */}
         <Outlet />
       </main>
 

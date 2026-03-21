@@ -1,64 +1,172 @@
-import { useState } from 'react';
-import { Upload, FileText, X } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Upload, FileText, X, CheckCircle2 } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/Button';
 import { useDatasetStore } from '../../../features/datasets/store';
 import { datasetService } from '../../../features/datasets/api/datasets.service';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export const FileUploadZone = ({ onSuccess }: { onSuccess: () => void }) => {
+interface FileUploadZoneProps {
+  onSuccess: (data: any) => void;
+}
+
+export const FileUploadZone = ({ onSuccess }: FileUploadZoneProps) => {
   const [file, setFile] = useState<File | null>(null);
-  const { setUploadProgress, setCurrentDataset, uploadProgress } = useDatasetStore();
+  const [isDragOver, setIsDragOver] = useState(false);
+  const { setUploadProgress, uploadProgress } = useDatasetStore();
   const [isUploading, setIsUploading] = useState(false);
+
+  const handleFile = (f: File | null) => {
+    if (f && f.name.endsWith('.csv')) setFile(f);
+  };
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    handleFile(e.dataTransfer.files?.[0] || null);
+  }, []);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
 
   const handleUpload = async () => {
     if (!file) return;
     setIsUploading(true);
     try {
-      const data = await datasetService.upload(file, (p) => setUploadProgress(p));
-      setCurrentDataset(data.id || 'mock-id-123');
-      onSuccess();
+      const response = await datasetService.upload(file, (p) => setUploadProgress(p));
+      onSuccess(response);
     } catch (error) {
-      console.error(error);
+      console.error('Upload failed:', error);
     } finally {
       setIsUploading(false);
     }
   };
 
+  const sizeLabel = file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : '';
+
   return (
-    <div className="flex flex-col items-center gap-6 py-10">
-      {!file ? (
-        <label className="w-full border-2 border-dashed border-border rounded-2xl p-12 flex flex-col items-center gap-4 hover:border-orange/50 hover:bg-orange-50/10 transition-all cursor-pointer">
-          <input type="file" className="hidden" accept=".csv" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-          <div className="bg-orange-50 p-4 rounded-full text-orange">
-            <Upload className="w-8 h-8" />
-          </div>
-          <div className="text-center">
-            <p className="font-bold text-navy">Click to upload or drag and drop</p>
-            <p className="text-sm text-content-secondary">CSV files only (max. 50MB)</p>
-          </div>
-        </label>
-      ) : (
-        <div className="w-full p-6 border border-border rounded-2xl flex items-center justify-between bg-surface">
-          <div className="flex items-center gap-4">
-            <FileText className="w-10 h-10 text-orange" />
-            <div>
-              <p className="font-bold text-navy">{file.name}</p>
-              <p className="text-xs text-content-muted">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+    <div className="flex flex-col gap-6">
+      {/* Header */}
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-navy">Upload Your Dataset</h2>
+        <p className="text-content-secondary mt-1 text-sm">
+          Drop a CSV file and our AI will automatically analyze your logistics process.
+        </p>
+      </div>
+
+      {/* Drop Zone */}
+      <AnimatePresence mode="wait">
+        {!file ? (
+          <motion.label
+            key="dropzone"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={() => setIsDragOver(false)}
+            className={`
+              relative w-full border-2 border-dashed rounded-2xl p-16 flex flex-col items-center gap-4
+              cursor-pointer transition-all duration-300
+              ${isDragOver
+                ? 'border-orange bg-orange-50/30 scale-[1.01] shadow-md shadow-orange/10'
+                : 'border-border hover:border-orange/40 hover:bg-orange-50/10'
+              }
+            `}
+          >
+            <input
+              type="file"
+              className="hidden"
+              accept=".csv"
+              onChange={e => handleFile(e.target.files?.[0] || null)}
+            />
+
+            <motion.div
+              animate={isDragOver ? { scale: 1.15, rotate: -6 } : { scale: 1, rotate: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className={`p-5 rounded-2xl transition-colors ${isDragOver ? 'bg-orange text-white shadow-md shadow-orange/30' : 'bg-orange-50 text-orange'}`}
+            >
+              <Upload className="w-10 h-10" />
+            </motion.div>
+
+            <div className="text-center">
+              <p className="font-bold text-navy text-lg">
+                {isDragOver ? 'Release to upload' : 'Drag & drop your CSV here'}
+              </p>
+              <p className="text-sm text-content-secondary mt-1">
+                or <span className="text-orange font-semibold underline underline-offset-2">click to browse</span>
+              </p>
             </div>
-          </div>
-          <button onClick={() => setFile(null)} className="p-2 hover:bg-danger-50 text-content-muted hover:text-danger rounded-lg">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-      )}
 
-      {isUploading && (
-        <div className="w-full bg-border h-2 rounded-full overflow-hidden">
-          <div className="bg-orange h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
-        </div>
-      )}
+            <div className="flex items-center gap-3 text-[11px] text-content-muted uppercase tracking-wider font-semibold">
+              <div className="h-px w-12 bg-border" />
+              CSV files only · max 50 MB
+              <div className="h-px w-12 bg-border" />
+            </div>
+          </motion.label>
+        ) : (
+          <motion.div
+            key="preview"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="w-full p-5 border border-border rounded-2xl bg-white flex items-center gap-4 shadow-card"
+          >
+            <div className="p-3 bg-navy-50 rounded-xl text-navy shrink-0">
+              <FileText className="w-7 h-7" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-navy truncate">{file.name}</p>
+              <p className="text-xs text-content-muted mt-0.5">{sizeLabel} · Ready to analyze</p>
+            </div>
+            <div className="p-1.5 bg-success-50 rounded-full text-success shrink-0">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
+            <button
+              onClick={() => setFile(null)}
+              className="p-2 hover:bg-danger-50 text-content-muted hover:text-danger rounded-xl transition-all duration-200 shrink-0"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <Button onClick={handleUpload} disabled={!file || isUploading} className="w-full" isLoading={isUploading}>
-        Continue to Mapping
+      {/* Upload Progress Bar */}
+      <AnimatePresence>
+        {isUploading && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="space-y-2"
+          >
+            <div className="flex justify-between text-xs font-semibold text-content-secondary">
+              <span>Uploading to AI engine...</span>
+              <span className="text-orange">{uploadProgress}%</span>
+            </div>
+            <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-border">
+              <motion.div
+                className="bg-gradient-to-r from-orange to-orange-light h-full rounded-full shadow-sm"
+                initial={{ width: '0%' }}
+                animate={{ width: `${uploadProgress}%` }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <Button
+        onClick={handleUpload}
+        disabled={!file || isUploading}
+        className="w-full"
+        size="lg"
+        isLoading={isUploading}
+        glow={!!file && !isUploading}
+      >
+        {isUploading ? 'Uploading...' : 'Start AI Analysis'}
       </Button>
     </div>
   );

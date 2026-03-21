@@ -1,10 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// Update this interface
 interface User {
   name: string;
   email: string;
   initials: string;
+  role: string; // <--- Add this line
 }
 
 interface AuthState {
@@ -22,10 +24,13 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       login: (user, token) => set({ isAuthenticated: true, user, token }),
-      logout: () => set({ isAuthenticated: false, user: null, token: null }),
+      logout: () => {
+        set({ isAuthenticated: false, user: null, token: null });
+        localStorage.removeItem('vyn-auth-storage');
+      },
     }),
     {
-      name: 'vyn-auth-storage', // This is the key used in localStorage
+      name: 'vyn-auth-storage',
     }
   )
 );

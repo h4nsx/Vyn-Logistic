@@ -2,12 +2,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { Mail, Lock } from 'lucide-react';
+import { Mail, Lock, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 import { Input } from '../../../shared/components/ui/Input';
 import { Button } from '../../../shared/components/ui/Button';
 import { loginSchema, type LoginCredentials } from '../../../features/auth/types';
-import { authService } from '../../../features/auth/api/auth.services';
+import { authService } from '../../../features/auth/api/auth.service';
 import { useAuthStore } from '../../../features/auth/store';
 
 export function LoginPage() {
@@ -19,50 +20,51 @@ export function LoginPage() {
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<LoginCredentials>({
-    resolver: zodResolver(loginSchema),
-  });
+  } = useForm<LoginCredentials>({ resolver: zodResolver(loginSchema) });
 
   const mutation = useMutation({
     mutationFn: authService.login,
     onSuccess: (data) => {
-      // 1. Pass the user and token to our Zustand store
       login(data.user, data.token);
-      
-      // 2. Redirect to the home page (or /app dashboard)
-      // Let's redirect to '/' for now so you can see the Navbar change!
-      navigate('/'); 
+      navigate('/app');
     },
     onError: (error: Error) => {
       setError('root', { message: error.message });
     },
   });
 
-  const onSubmit = (data: LoginCredentials) => {
-    mutation.mutate(data);
-  };
-
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2 text-center lg:text-left">
-        <h2 className="text-2xl font-bold text-navy">Welcome back</h2>
-        <p className="text-sm text-content-secondary">
-          Enter your credentials to access your account.
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+      className="flex flex-col gap-7"
+    >
+      {/* Header */}
+      <div>
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-50 rounded-full text-orange text-xs font-bold mb-4 border border-orange/20">
+          <div className="w-1.5 h-1.5 rounded-full bg-orange animate-pulse" />
+          Welcome back
+        </div>
+        <h1 className="text-3xl font-black text-navy leading-tight">Sign in to Vyn</h1>
+        <p className="text-content-secondary mt-2 text-sm">
+          Your supply chain intelligence is waiting.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+      {/* Form */}
+      <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="flex flex-col gap-4">
         <Input
           id="email"
           type="email"
           label="Email Address"
-          placeholder="admin@vyn.com"
+          placeholder="you@company.com"
           icon={<Mail className="w-4 h-4" />}
           error={errors.email?.message}
           {...register('email')}
         />
 
-        <div className="flex flex-col gap-1.5">
+        <div className="space-y-1">
           <Input
             id="password"
             type="password"
@@ -73,38 +75,46 @@ export function LoginPage() {
             {...register('password')}
           />
           <div className="flex justify-end">
-            <Link
-              to="/forgot-password"
-              className="text-xs font-semibold text-orange hover:text-orange-dark transition-colors"
-            >
+            <Link to="/forgot-password" className="text-xs font-semibold text-orange hover:text-orange-dark transition-colors">
               Forgot password?
             </Link>
           </div>
         </div>
 
         {errors.root && (
-          <div className="p-3 rounded-lg bg-danger-50 border border-danger-light text-sm text-danger">
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="flex items-center gap-2.5 p-3.5 rounded-xl bg-danger-50 border border-danger/20 text-danger text-sm"
+          >
+            <AlertCircle className="w-4 h-4 shrink-0" />
             {errors.root.message}
-          </div>
+          </motion.div>
         )}
 
         <Button
           type="submit"
-          variant="primary"
           size="lg"
-          className="w-full mt-2"
+          className="w-full mt-1"
           isLoading={mutation.isPending}
+          glow
         >
-          Log in
+          {mutation.isPending ? 'Signing in...' : 'Sign in'}
         </Button>
       </form>
 
-      <p className="text-center text-sm text-content-secondary mt-4">
+      <div className="flex items-center gap-3 text-xs text-content-muted">
+        <div className="h-px flex-1 bg-border" />
+        <span>OR</span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      <p className="text-center text-sm text-content-secondary">
         Don't have an account?{' '}
-        <Link to="/register" className="font-semibold text-navy hover:text-orange transition-colors">
-          Sign up
+        <Link to="/register" className="font-bold text-navy hover:text-orange transition-colors">
+          Create one free →
         </Link>
       </p>
-    </div>
+    </motion.div>
   );
 }
