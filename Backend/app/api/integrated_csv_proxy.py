@@ -10,14 +10,18 @@ logger = logging.getLogger(__name__)
 
 MODEL_BASE_URL = settings.AI_MODEL_URL.rstrip("/")
 INTEGRATED_TIMEOUT = 300.0
-MAX_FILE_SIZE = 20 * 1024 * 1024  # 20 MB
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
+ALLOWED_EXTENSIONS = (".csv", ".xlsx", ".xls")
 
 
-async def _forward_integrated_csv(endpoint: str, file: UploadFile):
-    filename = file.filename or "integrated.csv"
+async def _forward_integrated_file(endpoint: str, file: UploadFile):
+    filename = file.filename or "integrated_input"
 
-    if not filename.lower().endswith(".csv"):
-        raise HTTPException(status_code=400, detail="Only CSV files are accepted")
+    if not filename.lower().endswith(ALLOWED_EXTENSIONS):
+        raise HTTPException(
+            status_code=400,
+            detail="Only CSV, XLSX, and XLS files are accepted",
+        )
 
     file_bytes = await file.read()
     if not file_bytes:
@@ -28,11 +32,13 @@ async def _forward_integrated_csv(endpoint: str, file: UploadFile):
             detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024 * 1024)} MB",
         )
 
+    content_type = file.content_type or "application/octet-stream"
+
     try:
         async with httpx.AsyncClient(timeout=INTEGRATED_TIMEOUT) as client:
             response = await client.post(
                 f"{MODEL_BASE_URL}{endpoint}",
-                files={"file": (filename, file_bytes, file.content_type or "text/csv")},
+                files={"file": (filename, file_bytes, content_type)},
             )
     except httpx.RequestError as exc:
         logger.error("Cannot connect to model API [%s]: %s", endpoint, exc)
@@ -48,22 +54,16 @@ async def _forward_integrated_csv(endpoint: str, file: UploadFile):
 
     try:
         return response.json()
-    except Exception as exc:
-        logger.error("Model API returned non-JSON response [%s]: %s", endpoint, exc)
+    except Exception:
+        logger.error("Model API returned non-JSON response [%s]", endpoint)
         raise HTTPException(status_code=502, detail="Model API returned non-JSON response")
 
 
-@router.post(
-    "/validate/integrated_csv",
-    summary="Validate integrated CSV by forwarding file to the model API",
-)
+@router.post("/validate/integrated_csv")
 async def validate_integrated_csv(file: UploadFile = File(...)):
-    return await _forward_integrated_csv("/validate/integrated_csv", file)
+    return await _forward_integrated_file("/validate/integrated_csv", file)
 
 
-@router.post(
-    "/analyze/integrated_csv",
-    summary="Analyze integrated CSV by forwarding file to the model API",
-)
+@router.post("/analyze/integrated_csv")
 async def analyze_integrated_csv(file: UploadFile = File(...)):
-    return await _forward_integrated_csv("/analyze/integrated_csv", file)
+    return await _forward_integrated_file("/analyze/integrated_csv", file)
