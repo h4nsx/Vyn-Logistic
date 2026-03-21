@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Zap, Menu, X, ChevronDown, ArrowRight } from 'lucide-react';
 import { cn } from '../../utils/cn';
@@ -15,14 +15,34 @@ const products = [
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
+  
+  const lastScrollY = useRef(0);
   const location = useLocation();
   const { isAuthenticated, user } = useAuthStore();
 
+  const isHomePage = location.pathname === '/';
+
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll);
+    const onScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Determine if scrolled
+      setIsScrolled(currentScrollY > 20);
+
+      // Determine visibility (hide on scroll down, show on scroll up)
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
@@ -33,12 +53,20 @@ export const Navbar = () => {
 
   return (
     <>
-      <header className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
-        isScrolled
-          ? 'bg-white/95 backdrop-blur-xl shadow-navbar border-b border-border py-3'
-          : 'bg-transparent py-5'
-      )}>
+      <motion.header 
+        initial={false}
+        animate={{ 
+          y: isVisible ? 0 : -100,
+          backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0)',
+          backdropFilter: isScrolled ? 'blur(16px)' : 'blur(0px)',
+          borderBottomColor: isScrolled ? 'rgba(0, 0, 0, 0.05)' : 'rgba(0, 0, 0, 0)',
+        }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        className={cn(
+          'fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b',
+          isScrolled ? 'py-3 shadow-navbar' : 'py-5'
+        )}
+      >
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between gap-8">
 
           {/* Logo */}
@@ -48,7 +76,7 @@ export const Navbar = () => {
             </div>
             <span className={cn(
               "font-bold text-xl tracking-tight transition-colors",
-              isScrolled ? 'text-navy' : 'text-white'
+              (isScrolled || !isHomePage) ? 'text-navy' : 'text-white'
             )}>
               VYN
             </span>
@@ -63,8 +91,10 @@ export const Navbar = () => {
               onMouseLeave={() => setProductsOpen(false)}
             >
               <button className={cn(
-                "flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-colors",
-                isScrolled ? 'text-content-secondary hover:text-navy hover:bg-surface' : 'text-white/80 hover:text-white hover:bg-white/10'
+                "flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-black transition-colors",
+                (isScrolled || !isHomePage) 
+                  ? 'text-content-secondary hover:text-navy hover:bg-surface' 
+                  : 'text-white/80 hover:text-white hover:bg-white/10'
               )}>
                 Product
                 <ChevronDown className={cn("w-4 h-4 transition-transform", productsOpen && "rotate-180")} />
@@ -102,8 +132,10 @@ export const Navbar = () => {
                 key={link.name}
                 to={link.href}
                 className={cn(
-                  "px-4 py-2 rounded-xl text-sm font-semibold transition-colors",
-                  isScrolled ? 'text-content-secondary hover:text-navy hover:bg-surface' : 'text-white/80 hover:text-white hover:bg-white/10'
+                  "px-4 py-2 rounded-xl text-sm font-black transition-colors",
+                  (isScrolled || !isHomePage) 
+                    ? 'text-content-secondary hover:text-navy hover:bg-surface' 
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
                 )}
               >
                 {link.name}
@@ -116,7 +148,12 @@ export const Navbar = () => {
             {isAuthenticated ? (
               <Link
                 to="/app"
-                className="flex items-center gap-2.5 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-xl text-sm font-semibold transition-all border border-white/20 hover:border-white/40"
+                className={cn(
+                  "flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-black transition-all border shadow-sm",
+                  (isScrolled || !isHomePage)
+                    ? "bg-navy text-white border-navy shadow-navy/20"
+                    : "bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white border-white/20 hover:border-white/40"
+                )}
               >
                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange to-orange-dark text-white flex items-center justify-center text-xs font-bold shadow">
                   {user?.initials}
@@ -128,8 +165,8 @@ export const Navbar = () => {
                 <Link
                   to="/login"
                   className={cn(
-                    "px-4 py-2 rounded-xl text-sm font-semibold transition-colors",
-                    isScrolled ? 'text-navy hover:bg-surface' : 'text-white/90 hover:text-white hover:bg-white/10'
+                    "px-4 py-2 rounded-xl text-sm font-black transition-colors",
+                    (isScrolled || !isHomePage) ? 'text-navy hover:bg-surface' : 'text-white/90 hover:text-white hover:bg-white/10'
                   )}
                 >
                   Log in
@@ -143,13 +180,13 @@ export const Navbar = () => {
 
           {/* Mobile Toggle */}
           <button
-            className={cn("md:hidden z-50 p-2 rounded-xl transition-colors", isScrolled || isMobileOpen ? 'text-navy hover:bg-surface' : 'text-white hover:bg-white/10')}
+            className={cn("md:hidden z-50 p-2 rounded-xl transition-colors", (isScrolled || isMobileOpen || !isHomePage) ? 'text-navy hover:bg-surface' : 'text-white hover:bg-white/10')}
             onClick={() => setIsMobileOpen(!isMobileOpen)}
           >
             {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
-      </header>
+      </motion.header>
 
       {/* Mobile Drawer */}
       <AnimatePresence>

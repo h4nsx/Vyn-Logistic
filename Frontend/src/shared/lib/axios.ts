@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '../../features/auth/store';
 
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BACKUP_URL || '/api',
 });
 
 export const mlClient = axios.create({

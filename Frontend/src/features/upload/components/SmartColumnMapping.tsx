@@ -1,43 +1,75 @@
-import { useState } from 'react';
-import { ArrowRight, CheckCircle2, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowRight, CheckCircle2, ShieldCheck, CornerRightDown } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
+import { useDatasetStore } from '../../../features/datasets/store';
 
 interface SmartColumnMappingProps {
   onConfirm: () => void;
 }
 
+const SYSTEM_FIELDS = [
+  { key: 'row_group', label: 'Row Group', required: true },
+  { key: 'scenario_id', label: 'Scenario ID', required: true },
+  { key: 'entity_type', label: 'Entity Type', required: true },
+  { key: 'record_id', label: 'Record ID', required: true },
+  { key: 'process_branch', label: 'Process Branch', required: true },
+  { key: 'process_code', label: 'Process Code', required: true },
+  { key: 'case_id', label: 'Case ID', required: true },
+  { key: 'timestamp', label: 'Event Timestamp', required: false },
+  { key: 'activity', label: 'Activity Name', required: false },
+  { key: 'location', label: 'Location ID', required: false },
+  { key: 'resource', label: 'Resource / User', required: false },
+  { key: 'cost', label: 'Execution Cost', required: false },
+];
+
 export function SmartColumnMapping({ onConfirm }: SmartColumnMappingProps) {
   const [isConfirming, setIsConfirming] = useState(false);
+  const { validationData, setMappingData } = useDatasetStore();
   
-  // This would ideally come from the backend's initial parse
-  // For the UX proof of concept, we mock the auto-detected columns
-  const mockSystemFields = ['case_id', 'activity', 'timestamp', 'resource', 'cost', 'location'];
-  
-  const [mappings, setMappings] = useState([
-    { id: 1, uploaded: 'TrackingNumber', suggested: 'case_id', confidence: 'high' as const },
-    { id: 2, uploaded: 'StatusUpdate', suggested: 'activity', confidence: 'high' as const },
-    { id: 3, uploaded: 'EventTime', suggested: 'timestamp', confidence: 'high' as const },
-    { id: 4, uploaded: 'HandlerName', suggested: 'resource', confidence: 'medium' as const },
-    { id: 5, uploaded: 'HubLocation', suggested: 'location', confidence: 'medium' as const },
-  ]);
+  // State holds: { systemFieldKey: "uploaded_csv_column_name" }
+  const [mappings, setMappings] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    // Auto-match if possible based on exact lowercase text matches
+    if (validationData && validationData.columns.length > 0) {
+      const initialMap: Record<string, string> = {};
+      const availableCols = validationData.columns;
+
+      SYSTEM_FIELDS.forEach(field => {
+        const match = availableCols.find(c => c.toLowerCase() === field.key.toLowerCase());
+        if (match) initialMap[field.key] = match;
+      });
+      setMappings(initialMap);
+    }
+  }, [validationData]);
+
+  const handleSelectChange = (systemField: string, uploadedCol: string) => {
+    setMappings(prev => ({ ...prev, [systemField]: uploadedCol }));
+  };
+
+  const isFormValid = SYSTEM_FIELDS.filter(f => f.required).every(f => !!mappings[f.key]);
 
   const handleConfirm = () => {
+    if (!isFormValid) return;
     setIsConfirming(true);
-    // Simulate a brief save operation
+    
+    // Construct exactly as requested: user-defined rows matching standard system targets
+    // Assuming backend wants: { "Uploaded CSV Column": "System Required Field" }
+    const finalMapping: Record<string, string> = {};
+    Object.entries(mappings).forEach(([sysField, csvCol]) => {
+      if (csvCol) finalMapping[csvCol] = sysField;
+    });
+    
+    setMappingData(finalMapping);
+
     setTimeout(() => {
       setIsConfirming(false);
       onConfirm();
-    }, 600);
+    }, 400);
   };
 
-  const handleSelectChange = (id: number, newSuggested: string) => {
-    setMappings(prev => prev.map(m => m.id === id ? {
-      ...m,
-      suggested: newSuggested,
-      confidence: 'medium' // User overridden
-    } : m));
-  };
+  const csvColumns = validationData?.columns || [];
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
@@ -45,70 +77,94 @@ export function SmartColumnMapping({ onConfirm }: SmartColumnMappingProps) {
         <div className="mx-auto bg-success-50 w-16 h-16 rounded-full flex items-center justify-center mb-4">
           <ShieldCheck className="w-8 h-8 text-success" />
         </div>
-        <h2 className="text-2xl font-bold text-navy">AI Column Mapping</h2>
-        <p className="text-content-secondary mt-2 max-w-md mx-auto">
-          We've automatically matched your CSV columns to our system fields. Please review and confirm below.
+        <h2 className="text-2xl font-bold text-navy">Data Schema Mapping</h2>
+        <p className="text-content-secondary mt-2 max-w-lg mx-auto">
+          Please select which columns from your uploaded file correspond to our required system fields. Unmapped optional fields will be ignored.
         </p>
       </div>
 
-      <div className="bg-surface rounded-xl border border-border overflow-hidden">
+      <div className="bg-surface rounded-xl border border-border overflow-hidden shadow-sm">
         <table className="w-full text-left text-sm">
           <thead className="bg-white border-b border-border">
             <tr>
-              <th className="px-6 py-4 font-semibold text-content-secondary">Your CSV Column</th>
-              <th className="px-6 py-4 w-12 text-center text-border-dark"></th>
-              <th className="px-6 py-4 font-semibold text-navy flex items-center gap-2">
-                System Field
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-navy-50 text-navy uppercase">Required</span>
+              <th className="px-6 py-4 font-bold text-navy w-1/3">
+                System Requirement
               </th>
-              <th className="px-6 py-4 font-semibold text-content-secondary text-right">Confidence</th>
+              <th className="px-6 py-4 w-12 text-center text-border-dark"></th>
+              <th className="px-6 py-4 font-bold text-navy w-1/2">
+                Your File Column
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {mappings.map((row) => (
-              <tr key={row.id} className="hover:bg-white transition-colors">
-                <td className="px-6 py-4 font-bold text-navy bg-white/50">{row.uploaded}</td>
-                <td className="px-6 py-4 text-center">
-                  <ArrowRight className="w-4 h-4 text-content-muted inline-block" />
-                </td>
-                <td className="px-6 py-4">
-                  <select 
-                    value={row.suggested}
-                    onChange={(e) => handleSelectChange(row.id, e.target.value)}
-                    className="w-full bg-white border border-border rounded-lg px-3 py-2 text-content-primary focus:outline-none focus:ring-2 focus:ring-orange/40 focus:border-orange font-medium"
-                  >
-                    <option value="">-- Ignore Column --</option>
-                    {mockSystemFields.map(field => (
-                      <option key={field} value={field}>{field}</option>
-                    ))}
-                  </select>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  {row.confidence === 'high' ? (
-                    <Badge variant="success" className="inline-flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> High
-                    </Badge>
-                  ) : (
-                    <Badge variant="warning" className="inline-flex items-center gap-1">
-                      <AlertTriangle className="w-3 h-3" /> Medium
-                    </Badge>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {SYSTEM_FIELDS.map((field) => {
+              const currentValue = mappings[field.key] || '';
+              const isMapped = !!currentValue;
+
+              return (
+                <tr key={field.key} className={`transition-colors ${isMapped ? 'bg-white' : 'bg-surface/30'}`}>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <span className={`font-bold ${field.required ? 'text-navy' : 'text-content-secondary'}`}>
+                        {field.label}
+                      </span>
+                      {field.required ? (
+                        <Badge variant="danger" className="text-[9px] uppercase tracking-widest px-1.5 py-0">Required</Badge>
+                      ) : (
+                        <span className="text-[10px] text-content-muted uppercase font-bold tracking-wider rounded bg-surface border border-border px-1.5 py-0.5">Optional</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-content-muted mt-1 font-mono">{field.key}</p>
+                  </td>
+                  
+                  <td className="px-6 py-4 text-center">
+                    <CornerRightDown className="w-4 h-4 text-content-muted inline-block" />
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <select 
+                      value={currentValue}
+                      onChange={(e) => handleSelectChange(field.key, e.target.value)}
+                      className={`w-full border rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange/40 transition-colors ${
+                        isMapped 
+                          ? 'bg-success-50/30 border-success/30 text-success-dark' 
+                          : field.required 
+                            ? 'bg-white border-danger/30 text-content-primary' 
+                            : 'bg-white border-border text-content-primary'
+                      }`}
+                    >
+                      <option value="">-- Select specific row header --</option>
+                      {csvColumns.map(col => (
+                        <option key={col} value={col}>{col}</option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
-      <div className="pt-4 flex justify-end">
+      <div className="pt-4 flex justify-between items-center">
+        {!isFormValid ? (
+          <p className="text-danger text-sm font-semibold flex items-center gap-2">
+             * Please map all required system fields to proceed.
+          </p>
+        ) : (
+          <p className="text-success text-sm font-semibold flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4" /> All required fields mapped
+          </p>
+        )}
         <Button 
           variant="primary" 
           size="lg" 
           onClick={handleConfirm}
           isLoading={isConfirming}
+          disabled={!isFormValid}
           className="min-w-[200px]"
         >
-          Confirm & Process Data
+          Confirm Schema & Analyze
         </Button>
       </div>
     </div>

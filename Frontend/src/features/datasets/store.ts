@@ -14,8 +14,10 @@ interface DatasetState {
   currentDatasetId: string | null;
   activeStep: WorkflowStep;
   uploadProgress: number;
-  activeFile: File | null; // The actual CSV file
-  validationData: ValidationData | null; // Columns returned by ML service
+  activeFile: File | null; 
+  validationData: ValidationData | null;
+  mappingData: Record<string, string> | null;
+  analysisResult: any | null; // Stores the final POST /api/analyze/integrated_csv payload
   
   // Actions
   setCurrentDataset: (id: string | null) => void;
@@ -23,6 +25,8 @@ interface DatasetState {
   setUploadProgress: (progress: number) => void;
   setActiveFile: (file: File | null) => void;
   setValidationData: (data: ValidationData | null) => void;
+  setMappingData: (mapping: Record<string, string> | null) => void;
+  setAnalysisResult: (result: any | null) => void;
   
   // Reset
   resetWorkflow: () => void;
@@ -36,35 +40,36 @@ export const useDatasetStore = create<DatasetState>()(
       uploadProgress: 0,
       activeFile: null,
       validationData: null,
+      mappingData: null,
+      analysisResult: null,
 
       setCurrentDataset: (id) => set({ currentDatasetId: id }),
-      
       setStep: (step) => set({ activeStep: step }),
-      
       setUploadProgress: (progress) => set({ uploadProgress: progress }),
-      
       setActiveFile: (file) => set({ activeFile: file }),
-      
       setValidationData: (data) => set({ validationData: data }),
+      setMappingData: (mapping) => set({ mappingData: mapping }),
+      setAnalysisResult: (result) => set({ analysisResult: result }),
 
       resetWorkflow: () => set({ 
         currentDatasetId: null, 
         activeStep: 'upload', 
         uploadProgress: 0,
         activeFile: null,
-        validationData: null
+        validationData: null,
+        mappingData: null,
+        analysisResult: null
       }),
     }),
     {
       name: 'vyn-dataset-flow',
       storage: createJSONStorage(() => localStorage),
-      // partialize allows us to EXCLUDE the 'activeFile' from localStorage
-      // because File objects cannot be turned into JSON strings.
       partialize: (state) => ({
         currentDatasetId: state.currentDatasetId,
         activeStep: state.activeStep,
         uploadProgress: state.uploadProgress,
         validationData: state.validationData,
+        analysisResult: state.analysisResult,
       }),
     }
   )

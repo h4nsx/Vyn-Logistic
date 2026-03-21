@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import * as XLSX from 'xlsx';
 import { Upload, FileText, X, CheckCircle2 } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/Button';
 import { useDatasetStore } from '../../../features/datasets/store';
@@ -12,11 +13,13 @@ interface FileUploadZoneProps {
 export const FileUploadZone = ({ onSuccess }: FileUploadZoneProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  const { setUploadProgress, uploadProgress } = useDatasetStore();
+  const { setUploadProgress, uploadProgress, setValidationData } = useDatasetStore();
   const [isUploading, setIsUploading] = useState(false);
 
   const handleFile = (f: File | null) => {
-    if (f && f.name.endsWith('.csv')) setFile(f);
+    if (f && (f.name.endsWith('.csv') || f.name.match(/\.xlsx?$/i))) {
+      setFile(f);
+    }
   };
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -33,14 +36,68 @@ export const FileUploadZone = ({ onSuccess }: FileUploadZoneProps) => {
   const handleUpload = async () => {
     if (!file) return;
     setIsUploading(true);
-    try {
-      const response = await datasetService.upload(file, (p) => setUploadProgress(p));
-      onSuccess(response);
-    } catch (error) {
-      console.error('Upload failed:', error);
-    } finally {
-      setIsUploading(false);
+    
+    let processedFile = file;
+
+    // Excel Transliteration Interceptor Model
+    if (file.name.match(/\.xlsx?$/i)) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        const csvOutput = XLSX.utils.sheet_to_csv(worksheet);
+        processedFile = new File([csvOutput], file.name.replace(/\.xlsx?$/i, '.csv'), { type: 'text/csv' });
+      } catch (err) {
+        console.error("Failed to parse Excel workbook cleanly:", err);
+        setIsUploading(false);
+        return;
+      }
     }
+
+    useDatasetStore.getState().setActiveFile(processedFile);
+
+    // Read headers locally
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split(/\r?\n/);
+      let extractedColumns: string[] = [];
+
+      // Scan aggressively down the file to skip blank rows or stray title text
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        
+        const rawCols = line.split(',');
+        const cols = rawCols.map(c => c.trim().replace(/^"|"$/g, ''));
+        const nonEmptyCols = cols.filter(c => c.length > 0);
+        
+        // At least 3 populated values means we reliably hit the structural headers
+        // (Since validation requires 7 fields anyway, 3 is an extremely generous floor)
+        if (nonEmptyCols.length >= 3) {
+          extractedColumns = cols;
+          break;
+        }
+      }
+      
+      if (extractedColumns.length > 0) {
+         setValidationData({ columns: extractedColumns, suggestions: {} });
+      } else {
+         console.error("Critical failure: Could not discover any structural header row in the provided file.");
+      }
+      
+      setIsUploading(false);
+      onSuccess({ id: 'active-upload-session' });
+    };
+    
+    reader.onerror = () => {
+      console.error('File reading failed');
+      setIsUploading(false);
+    };
+    
+    reader.readAsText(processedFile);
   };
 
   const sizeLabel = file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : '';
@@ -51,7 +108,7 @@ export const FileUploadZone = ({ onSuccess }: FileUploadZoneProps) => {
       <div className="text-center">
         <h2 className="text-2xl font-bold text-navy">Upload Your Dataset</h2>
         <p className="text-content-secondary mt-1 text-sm">
-          Drop a CSV file and our AI will automatically analyze your logistics process.
+          Drop a CSV or Excel (.xlsx) file and our AI will automatically analyze your logistics process.
         </p>
       </div>
 
@@ -78,7 +135,7 @@ export const FileUploadZone = ({ onSuccess }: FileUploadZoneProps) => {
             <input
               type="file"
               className="hidden"
-              accept=".csv"
+              accept=".csv, .xls, .xlsx"
               onChange={e => handleFile(e.target.files?.[0] || null)}
             />
 

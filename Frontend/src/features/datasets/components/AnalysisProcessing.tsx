@@ -1,9 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Circle, Loader2 } from 'lucide-react';
+import { useDatasetStore } from '../store';
+import { datasetService } from '../api/datasets.service';
 
 export const AnalysisProcessing = ({ onFinished }: { onFinished: () => void }) => {
   const [activeStepIndex, setActiveStepIndex] = useState(0);
+  const { activeFile, mappingData, setCurrentDataset, setAnalysisResult } = useDatasetStore();
+  const hasStartedAnalysis = useRef(false);
 
   const steps = [
     { label: 'Structuring Data', desc: 'Parsing logs and building activity graph' },
@@ -14,19 +18,42 @@ export const AnalysisProcessing = ({ onFinished }: { onFinished: () => void }) =
 
   useEffect(() => {
     let current = 0;
-    const interval = setInterval(() => {
-      current++;
-      if (current < steps.length) {
-        setActiveStepIndex(current);
-      } else {
-        clearInterval(interval);
-        // Wait briefly at 100% completion before navigating
-        setTimeout(onFinished, 1200);
-      }
-    }, 2000); // 2 seconds per step
+    let simulationInterval: any;
 
-    return () => clearInterval(interval);
-  }, [onFinished]);
+    const performAnalysis = async () => {
+      if (hasStartedAnalysis.current) return;
+      hasStartedAnalysis.current = true;
+
+      // Animate progress up to "Running AI Model" while waiting for API
+      simulationInterval = setInterval(() => {
+        current = Math.min(current + 1, steps.length - 2);
+        setActiveStepIndex(current);
+      }, 2000);
+
+      try {
+        if (activeFile && mappingData) {
+          const response = await datasetService.analyzeCsv(activeFile, mappingData);
+          setAnalysisResult(response); // Store the entire ML JSON response
+          if (response && (response.id || response.dataset_id || response.upload_id)) {
+            setCurrentDataset(response.id || response.dataset_id || response.upload_id);
+          } else {
+            setCurrentDataset('latest'); // Used as fallback ID routing
+          }
+        }
+      } catch (error) {
+        console.error("AI Analysis encountered an error:", error);
+      } finally {
+        // Finalize state
+        clearInterval(simulationInterval);
+        setActiveStepIndex(steps.length); // Jump to fully completed state
+        setTimeout(onFinished, 1500); // Give user time to see full completion before switching screen
+      }
+    };
+
+    performAnalysis();
+
+    return () => clearInterval(simulationInterval);
+  }, [activeFile, mappingData, onFinished, setCurrentDataset]);
 
   return (
     <div className="flex flex-col items-center py-10 max-w-lg mx-auto w-full">

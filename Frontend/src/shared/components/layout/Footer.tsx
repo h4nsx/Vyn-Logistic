@@ -2,30 +2,30 @@ import { Link } from 'react-router-dom';
 import { Zap, Github, Linkedin, Mail, ArrowRight } from 'lucide-react';
 
 const productLinks = [
+  { name: 'Interactive Demo', href: '/demo' },
   { name: 'Dashboard', href: '/app' },
   { name: 'Upload Dataset', href: '/app/upload' },
   { name: 'Process Analysis', href: '/app/datasets' },
-  { name: 'Analytics', href: '/app/analytics' },
 ];
 
 const resourceLinks = [
-  { name: 'Documentation', href: '#' },
-  { name: 'API Reference', href: '#' },
-  { name: 'Sample Dataset', href: '#' },
-  { name: 'Help Center', href: '#' },
+  { name: 'Interactive Demo', href: '/demo' },
+  { name: 'Documentation', href: '/resources/docs' },
+  { name: 'API Reference', href: '/resources/api' },
+  { name: 'Sample Dataset', href: '/resources/samples' },
 ];
 
 const companyLinks = [
   { name: 'About', href: '/about-us' },
-  { name: 'Privacy Policy', href: '#' },
-  { name: 'Terms of Service', href: '#' },
-  
+  { name: 'Contact', href: '/contact' },
+  { name: 'Privacy Policy', href: '/privacy' },
+  { name: 'Terms of Service', href: '/terms' },
 ];
 
 const socials = [
-  { Icon: Github, href: '#', label: 'GitHub' },
-  { Icon: Linkedin, href: '#', label: 'LinkedIn' },
-  { Icon: Mail, href: 'mailto:hello@hazenai.com', label: 'Email' },
+  { Icon: Github, href: 'https://github.com/h4nsx', label: 'GitHub' },
+  { Icon: Linkedin, href: 'https://www.linkedin.com/in/tuan-hung-vo-5822b1374/', label: 'LinkedIn' },
+  { Icon: Mail, href: 'mailto:votuanhung1205.work@gmail.com', label: 'Email' },
 ];
 
 function LinkColumn({ title, links }: { title: string; links: { name: string; href: string }[] }) {
@@ -122,8 +122,8 @@ export const Footer = () => {
             © 2026 Vyn. All rights reserved.
           </p>
           <div className="flex items-center gap-5 text-xs text-white/20">
-            <Link to="#" className="hover:text-white/50 transition-colors">Privacy Policy</Link>
-            <Link to="#" className="hover:text-white/50 transition-colors">Terms of Service</Link>
+            <Link to="/privacy" className="hover:text-white/50 transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-white/50 transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>

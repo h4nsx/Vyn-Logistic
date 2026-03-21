@@ -12,6 +12,23 @@ import { RegisterPage } from '../../pages/public/auth/register.page';
 import { ForgotPasswordPage } from '../../pages/public/auth/forgot-password.page';
 import { ResetPasswordPage } from '../../pages/public/auth/reset-password.page';
 import { HomePage } from '../../pages/public/home.page';
+import { AboutPage } from '../../pages/public/about.page';
+import { ContactPage } from '../../pages/public/contact.page';
+import { PrivacyPolicyPage } from '../../pages/public/privacy.page';
+import { TermsOfServicePage } from '../../pages/public/terms.page';
+
+// Product Pages
+import { HowItWorksPage } from '../../pages/public/products/how-it-works.page';
+import { CoreFeaturesPage } from '../../pages/public/products/core-features.page';
+import { ArchitecturePage } from '../../pages/public/products/architecture.page';
+import { UseCasesPage } from '../../pages/public/products/use-cases.page';
+
+// Resource Pages
+import { DocumentationPage } from '../../pages/public/resources/documentation.page';
+import { ApiReferencePage } from '../../pages/public/resources/api-reference.page';
+import { SampleDatasetsPage } from '../../pages/public/resources/sample-dataset.page';
+import { HelpCenterPage } from '../../pages/public/resources/help-center.page';
+import { DemoPage } from '../../pages/public/demo.page';
 
 // App (Protected) Pages
 import { DashboardPage } from '../../pages/app/dashboard.page';
@@ -30,6 +47,19 @@ export const router = createBrowserRouter([
         element: <MainLayout />,
         children: [
           { index: true, element: <HomePage /> },
+          { path: 'products/how-it-works', element: <HowItWorksPage /> },
+          { path: 'products/core-features', element: <CoreFeaturesPage /> },
+          { path: 'products/architecture', element: <ArchitecturePage /> },
+          { path: 'products/use-cases', element: <UseCasesPage /> },
+          { path: 'about-us', element: <AboutPage /> },
+          { path: 'resources/docs', element: <DocumentationPage /> },
+          { path: 'resources/api', element: <ApiReferencePage /> },
+          { path: 'resources/samples', element: <SampleDatasetsPage /> },
+          { path: 'resources/help', element: <HelpCenterPage /> },
+          { path: 'demo', element: <DemoPage /> },
+          { path: 'contact', element: <ContactPage /> },
+          { path: 'privacy', element: <PrivacyPolicyPage /> },
+          { path: 'terms', element: <TermsOfServicePage /> },
         ],
       },
       {

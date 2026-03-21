@@ -88,88 +88,102 @@ export function AnalyticsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <KpiCard 
           title="Avg. Risk Score" 
-          value={results.length ? (results.reduce((acc, curr) => acc + (curr.risk_score || 0), 0) / results.length).toFixed(1) : 0} 
-          trend="down" 
-          label="-12% vs last month"
+          value={results.length ? (results.reduce((acc, curr) => acc + (curr.risk_score || 0), 0) / results.length).toFixed(1) : '—'} 
+          trend={results.length > 0 ? "down" : null} 
+          label={results.length ? "-12% vs last month" : "No data"}
         />
         <KpiCard 
           title="Total Anomalies" 
-          value={anomalies.length} 
-          trend="up" 
-          label="+4 detected today"
+          value={anomalies.length ? anomalies.length : '—'} 
+          trend={anomalies.length > 0 ? "up" : null} 
+          label={anomalies.length ? "+4 detected today" : "No data"}
         />
         <KpiCard 
           title="System Health" 
-          value="94.2%" 
-          trend="up" 
-          label="Optimal"
+          value={results.length ? "94.2%" : "—"} 
+          trend={results.length > 0 ? "up" : null} 
+          label={results.length ? "Optimal" : "No data"}
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-border shadow-card">
-          <h3 className="font-bold text-navy mb-6">Risk vs. Efficiency Trend</h3>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} />
-                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
-                <Line type="monotone" dataKey="risk" stroke="#dc2626" strokeWidth={3} dot={false} />
-                <Line type="monotone" dataKey="efficiency" stroke="#0891b2" strokeWidth={3} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
+      {results.length === 0 && anomalies.length === 0 ? (
+        <div className="bg-white border border-border shadow-sm rounded-2xl p-16 text-center mt-8">
+          <div className="w-16 h-16 bg-navy-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Info className="w-8 h-8 text-navy opacity-50" />
           </div>
+          <h2 className="text-xl font-bold text-navy mb-2">No Historical Data Found</h2>
+          <p className="text-content-secondary max-w-sm mx-auto mb-6">
+            Your intelligence center is currently empty. Upload a logistics dataset to initiate the AI analysis sequence and track your operational metrics.
+          </p>
         </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+            <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-border shadow-card">
+              <h3 className="font-bold text-navy mb-6">Risk vs. Efficiency Trend</h3>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={trendData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
+                    <Line type="monotone" dataKey="risk" stroke="#dc2626" strokeWidth={3} dot={false} />
+                    <Line type="monotone" dataKey="efficiency" stroke="#0891b2" strokeWidth={3} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-border shadow-card">
-          <h3 className="font-bold text-navy mb-6">Anomaly Distribution</h3>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={nodeData} layout="vertical" margin={{ left: 20 }}>
-                <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#475569'}} width={100} />
-                <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
-                <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={24}>
-                  {nodeData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#1e3a5f' : '#0891b2'} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="bg-white p-6 rounded-2xl border border-border shadow-card">
+              <h3 className="font-bold text-navy mb-6">Anomaly Distribution</h3>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={nodeData} layout="vertical" margin={{ left: 20 }}>
+                    <XAxis type="number" hide />
+                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#475569'}} width={100} />
+                    <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
+                    <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={24}>
+                      {nodeData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#1e3a5f' : '#0891b2'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div className="bg-white p-6 rounded-2xl border border-border shadow-card">
-        <div className="flex items-center gap-2 mb-6">
-          <h3 className="font-bold text-navy">Step Duration Distribution</h3>
-          <Info className="w-4 h-4 text-content-muted cursor-help" />
-        </div>
-        <div className="h-[350px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={stepDurationData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorActual" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
-                </linearGradient>
-                <linearGradient id="colorBaseline" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#0891b2" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#0891b2" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="step" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#475569'}} dy={10} />
-              <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#475569'}} />
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-              <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
-              <Area type="monotone" dataKey="baseline" stroke="#0891b2" fillOpacity={1} fill="url(#colorBaseline)" name="Baseline Expected (hrs) " />
-              <Area type="monotone" dataKey="actual" stroke="#f97316" fillOpacity={1} fill="url(#colorActual)" name="Actual Average (hrs)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+          <div className="bg-white p-6 rounded-2xl border border-border shadow-card mt-8">
+            <div className="flex items-center gap-2 mb-6">
+              <h3 className="font-bold text-navy">Step Duration Distribution</h3>
+              <Info className="w-4 h-4 text-content-muted cursor-help" />
+            </div>
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={stepDurationData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorActual" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorBaseline" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#0891b2" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#0891b2" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="step" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#475569'}} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#475569'}} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
+                  <Area type="monotone" dataKey="baseline" stroke="#0891b2" fillOpacity={1} fill="url(#colorBaseline)" name="Baseline Expected (hrs) " />
+                  <Area type="monotone" dataKey="actual" stroke="#f97316" fillOpacity={1} fill="url(#colorActual)" name="Actual Average (hrs)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -50,7 +50,7 @@ export function LoginPage() {
         <p className="text-content-secondary mt-2 text-sm">
           Your supply chain intelligence is waiting.
         </p>
-      </div>
+    </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="flex flex-col gap-4">

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useDatasetStore } from '../../features/datasets/store';
 import { FileUploadZone } from '../../features/upload/components/FileUploadZone';
 import { SmartColumnMapping } from '../../features/upload/components/SmartColumnMapping';
@@ -15,8 +16,17 @@ const stepLabels = [
 ];
 
 export function UploadPage() {
-  const { activeStep, setStep, setCurrentDataset, currentDatasetId } = useDatasetStore();
+  const { activeStep, setStep, setCurrentDataset, currentDatasetId, resetWorkflow, activeFile } = useDatasetStore();
   const navigate = useNavigate();
+
+  // Ensure lingering workflow states from previous sessions are wiped clean
+  useEffect(() => {
+    // Zustand's persist ignores `activeFile` due to it being binary. 
+    // Thus, if we load the page and we're stuck in 'mapping/processing' but have no file, the memory is stale!
+    if (!activeFile && activeStep !== 'upload') {
+      resetWorkflow();
+    }
+  }, [activeFile, activeStep, resetWorkflow]);
 
   const currentStepIdx = STEPS.indexOf(activeStep as any);
 
