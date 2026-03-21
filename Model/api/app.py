@@ -641,7 +641,7 @@ def _validate_integrated_csv_structure(raw_df: pd.DataFrame) -> Dict[str, Any]:
 
 def _build_overall_result(process_results: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
 
-    if not process_results:
+    if not process_results: 
         return {
             "total_case_count": 0,
             "avg_risk_score": 0.0,
@@ -700,9 +700,9 @@ def _build_overall_result(process_results: Dict[str, Dict[str, Any]]) -> Dict[st
 async def validate_integrated_csv(file: UploadFile = File(...)):
     try:
         contents = await file.read()
-        raw_df = pd.read_csv(io.BytesIO(contents))
+        raw_df = _read_uploaded_table(contents, file.filename)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid CSV file: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid input file: {e}")
 
     return _validate_integrated_csv_structure(raw_df)
 
@@ -712,9 +712,9 @@ async def analyze_integrated_csv(file: UploadFile = File(...)):
 
     try:
         contents = await file.read()
-        raw_df = pd.read_csv(io.BytesIO(contents))
+        raw_df = _read_uploaded_table(contents, file.filename)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid CSV file: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid input file: {e}")
 
     validation_report = _validate_integrated_csv_structure(raw_df)
     if not validation_report["valid"]:
@@ -810,6 +810,74 @@ async def analyze_integrated_csv(file: UploadFile = File(...)):
         "process_results": compact_process_results,
     }
 
+def _read_uploaded_table(contents: bytes, filename: Optional[str] = None) -> pd.DataFrame:
+    """
+    Read uploaded CSV/XLSX.
+    For XLSX, auto-detect the true header row by searching for 'row_group'.
+    """
+    filename = (filename or "").strip().lower()
+    ext = os.path.splitext(filename)[1]
+
+    if ext == ".csv":
+        return pd.read_csv(io.BytesIO(contents))
+
+    if ext == ".xlsx":
+        return _read_uploaded_excel_auto_header(contents)
+
+    # fallback: try CSV first
+    try:
+        return pd.read_csv(io.BytesIO(contents))
+    except Exception:
+        pass
+
+    # fallback: try XLSX with auto-header detection
+    try:
+        return _read_uploaded_excel_auto_header(contents)
+    except Exception:
+        pass
+
+    raise HTTPException(
+        status_code=400,
+        detail="Unsupported file format. Please upload a .csv or .xlsx file.",
+    )
+
+
+def _read_uploaded_excel_auto_header(contents: bytes) -> pd.DataFrame:
+    """
+    Detect the real header row in Excel by looking for row_group/scenario_id.
+    """
+    preview = pd.read_excel(io.BytesIO(contents), engine="openpyxl", header=None)
+
+    header_idx = None
+    required_markers = {"row_group", "scenario_id"}
+
+    for i in range(min(len(preview), 15)):  # quét 15 dòng đầu
+        row_values = {
+            str(v).strip().lower()
+            for v in preview.iloc[i].tolist()
+            if pd.notna(v)
+        }
+
+        if required_markers.issubset(row_values):
+            header_idx = i
+            break
+
+    if header_idx is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Could not find Excel header row containing 'row_group' and 'scenario_id'.",
+        )
+
+    df = pd.read_excel(
+        io.BytesIO(contents),
+        engine="openpyxl",
+        header=header_idx,
+    )
+
+    # dọn tên cột
+    df.columns = [str(c).strip() for c in df.columns]
+
+    return df
 
 # ======================================================
 # Entity AI endpoints
@@ -1290,9 +1358,9 @@ async def process_analyze_case_file_numeric(
 
     try:
         contents = await file.read()
-        raw_df = pd.read_csv(io.BytesIO(contents))
+        raw_df = _read_uploaded_table(contents, file.filename)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid CSV file: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid input file: {e}")
 
     entity_score_map = _compute_entity_score_map_from_integrated(raw_df)
     extracted_df = _extract_process_rows_from_any_csv(raw_df, process_code)
@@ -1374,9 +1442,9 @@ async def process_analyze_batch_file_numeric(
 
     try:
         contents = await file.read()
-        raw_df = pd.read_csv(io.BytesIO(contents))
+        raw_df = _read_uploaded_table(contents, file.filename)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid CSV file: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid input file: {e}")
 
     entity_score_map = _compute_entity_score_map_from_integrated(raw_df)
     extracted_df = _extract_process_rows_from_any_csv(raw_df, process_code)
