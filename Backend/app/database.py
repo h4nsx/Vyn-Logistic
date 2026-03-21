@@ -37,6 +37,9 @@ async def create_indexes() -> None:
         await db.entity_results.create_index("entity_type")
         await db.entity_results.create_index([("predicted_at", -1)])
 
+        await db.integrated_analyses.create_index("analysis_id", unique=True)
+        await db.integrated_analyses.create_index([("analyzed_at", -1)])
+
         # Auth collections
         await db.users.create_index("email", unique=True)
         await db.users.create_index("role")
