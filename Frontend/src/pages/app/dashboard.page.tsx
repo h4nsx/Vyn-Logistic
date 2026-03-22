@@ -8,7 +8,7 @@ import { useDatasetStore } from '../../features/datasets/store';
 import { Button } from '../../shared/components/ui/Button';
 import { Badge } from '../../shared/components/ui/Badge';
 import { LoadingSpinner } from '../../shared/components/feedback/LoadingSpinner';
-import { analyticsService } from '../../features/analytics/api/analytics.service';
+import { datasetService } from '../../features/datasets/api/datasets.service';
 
 const containerVariants: Variants = {
   hidden: {},
@@ -24,30 +24,26 @@ export function DashboardPage() {
   const navigate = useNavigate();
   const { resetWorkflow } = useDatasetStore();
 
-  const { data: anomaliesData, isLoading: loadingAnomalies } = useQuery({
-    queryKey: ['anomalies'],
-    queryFn: analyticsService.getAnomalies,
-  });
-
+  // Fetch from the explicitly permitted GET /api/integrated_analyses history endpoint
   const { data: resultsData, isLoading: loadingResults } = useQuery({
-    queryKey: ['results'],
-    queryFn: analyticsService.getResults,
+    queryKey: ['integrated_analyses'],
+    queryFn: datasetService.getIntegratedAnalyses,
   });
-
-  const anomalies = Array.isArray(anomaliesData) 
-    ? anomaliesData 
-    : (Array.isArray(anomaliesData?.records) ? anomaliesData.records : (Array.isArray(anomaliesData?.data) ? anomaliesData.data : (Array.isArray(anomaliesData?.result) ? anomaliesData.result : [])));
 
   const results = Array.isArray(resultsData) 
     ? resultsData 
     : (Array.isArray(resultsData?.records) ? resultsData.records : (Array.isArray(resultsData?.data) ? resultsData.data : (Array.isArray(resultsData?.result) ? resultsData.result : [])));
 
-  const highRiskCount = anomalies.filter((a: any) => a.risk_level?.toLowerCase() === 'high' || a.risk?.toLowerCase() === 'high').length;
+  // Compute Global KPIs dynamically across history rows
+  const totalAnalyses = results.length;
+  const totalAnomalies = results.reduce((acc: number, curr: any) => acc + (curr.overall_result?.anomaly_count || 0), 0);
   const avgRisk = results.length
-    ? (results.reduce((acc: number, curr: any) => acc + (curr.risk_score || curr.avg_risk_score || 0), 0) / results.length).toFixed(1)
+    ? (results.reduce((acc: number, curr: any) => acc + (curr.overall_result?.avg_risk_score || 0), 0) / results.length).toFixed(1)
     : '—';
+  const totalCases = results.reduce((acc: number, curr: any) => acc + (curr.overall_result?.total_case_count || 0), 0);
+  const stableCases = totalCases - totalAnomalies;
 
-  if (loadingAnomalies || loadingResults) {
+  if (loadingResults) {
     return <LoadingSpinner className="h-[80vh]" label="Loading intelligence..." />;
   }
 
@@ -59,7 +55,7 @@ export function DashboardPage() {
   const kpis = [
     {
       title: 'Total Analyses',
-      value: results.length,
+      value: totalAnalyses,
       icon: Package,
       color: 'navy',
       bg: 'bg-navy-50',
@@ -67,7 +63,7 @@ export function DashboardPage() {
       trend: null,
     },
     {
-      title: 'Avg Risk Score',
+      title: 'Avg Network Risk',
       value: avgRisk,
       icon: Activity,
       color: 'orange',
@@ -76,17 +72,17 @@ export function DashboardPage() {
       trend: Number(avgRisk) > 50 ? 'up' : 'down',
     },
     {
-      title: 'High Risk Alerts',
-      value: highRiskCount,
+      title: 'Total Anomalies',
+      value: totalAnomalies,
       icon: AlertTriangle,
       color: 'danger',
       bg: 'bg-danger-50',
       text: 'text-danger',
-      trend: highRiskCount > 0 ? 'up' : null,
+      trend: totalAnomalies > 10 ? 'up' : null,
     },
     {
-      title: 'Stable Processes',
-      value: results.length - highRiskCount,
+      title: 'Stable Operations',
+      value: stableCases > 0 ? stableCases : '—',
       icon: CheckCircle2,
       color: 'success',
       bg: 'bg-success-50',
@@ -170,8 +166,8 @@ export function DashboardPage() {
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="border-b border-border bg-surface/50">
-                  <th className="px-6 py-3 text-[11px] font-semibold text-content-muted uppercase tracking-wider">Case ID</th>
-                  <th className="px-6 py-3 text-[11px] font-semibold text-content-muted uppercase tracking-wider">Risk</th>
+                  <th className="px-6 py-3 text-[11px] font-semibold text-content-muted uppercase tracking-wider">Analysis ID</th>
+                  <th className="px-6 py-3 text-[11px] font-semibold text-content-muted uppercase tracking-wider">Risk Score</th>
                   <th className="px-6 py-3 text-[11px] font-semibold text-content-muted uppercase tracking-wider">Status</th>
                   <th className="px-6 py-3 text-[11px] font-semibold text-content-muted uppercase tracking-wider">Date</th>
                 </tr>
@@ -184,73 +180,83 @@ export function DashboardPage() {
                     </td>
                   </tr>
                 )}
-                {results.slice(0, 6).map((row: any) => (
+                {results.slice(0, 6).map((row: any) => {
+                  const risk = row.overall_result?.avg_risk_score || row.risk_score || 0;
+                  const idStr = row.analysis_id || row.id || 'Unknown';
+                  return (
                   <tr
-                    key={row.case_id}
+                    key={idStr}
                     className="hover:bg-navy-50/20 cursor-pointer transition-colors group"
-                    onClick={() => navigate(`/app/datasets/${row.case_id}`)}
+                    onClick={() => navigate(`/app/datasets/${idStr}`)}
                   >
-                    <td className="px-6 py-4 font-semibold text-navy font-mono text-xs">{row.case_id}</td>
+                    <td className="px-6 py-4 font-semibold text-navy font-mono text-xs max-w-[120px] truncate" title={idStr}>{idStr}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${row.risk_score > 70 ? 'bg-danger' : row.risk_score > 40 ? 'bg-warning' : 'bg-success'}`} />
-                        <span className={`font-black text-base ${row.risk_score > 70 ? 'text-danger' : row.risk_score > 40 ? 'text-warning' : 'text-success'}`}>
-                          {row.risk_score}
+                        <div className={`w-2 h-2 rounded-full ${risk > 50 ? 'bg-danger' : risk > 40 ? 'bg-warning' : 'bg-success'}`} />
+                        <span className={`font-black text-base ${risk > 50 ? 'text-danger' : risk > 40 ? 'text-warning' : 'text-success'}`}>
+                          {risk.toFixed(1)}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <Badge
-                        variant={row.risk_score > 70 ? 'danger' : row.risk_score > 40 ? 'warning' : 'success'}
+                        variant={risk > 50 ? 'danger' : risk > 40 ? 'warning' : 'success'}
                         dot
                       >
-                        {row.risk_score > 70 ? 'Critical' : row.risk_score > 40 ? 'Warning' : 'Healthy'}
+                        {risk > 50 ? 'Elevated' : risk > 40 ? 'Warning' : 'Healthy'}
                       </Badge>
                     </td>
                     <td className="px-6 py-4 text-content-muted text-xs">
-                      {dayjs(row.timestamp).format('MMM DD, HH:mm')}
+                      {dayjs(row.analyzed_at || row.timestamp || row.createdAt).format('MMM DD, HH:mm')}
                     </td>
                   </tr>
-                ))}
+                )})}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Anomaly Alerts Panel */}
+        {/* Anomaly Alerts Panel (Re-mapped to highlight the datasets with the most anomalies) */}
         <div className="bg-white rounded-2xl border border-border shadow-card overflow-hidden">
           <div className="p-6 border-b border-border">
-            <h3 className="font-bold text-navy">Anomaly Alerts</h3>
-            <p className="text-xs text-content-muted mt-0.5">{anomalies.length} active signals</p>
+            <h3 className="font-bold text-navy">Priority Alerts</h3>
+            <p className="text-xs text-content-muted mt-0.5">Focus areas based on anomaly density</p>
           </div>
           <div className="p-4 space-y-3 max-h-[340px] overflow-y-auto">
-            {anomalies.length === 0 && (
+            {results.length === 0 && (
               <div className="flex flex-col items-center py-10 text-center">
                 <CheckCircle2 className="w-8 h-8 text-success mb-2" />
                 <p className="text-sm font-semibold text-navy">All Clear</p>
-                <p className="text-xs text-content-muted mt-1">No anomalies detected</p>
+                <p className="text-xs text-content-muted mt-1">No risk alerts detected</p>
               </div>
             )}
-            {anomalies.slice(0, 5).map((anomaly: any, idx: number) => (
+            
+            {/* Sort datasets by most anomalies first */}
+            {[...results].sort((a, b) => (b.overall_result?.anomaly_count || 0) - (a.overall_result?.anomaly_count || 0)).slice(0, 5).map((row: any, idx: number) => {
+              const anomalies = row.overall_result?.anomaly_count || 0;
+              if (anomalies === 0) return null;
+              
+              return (
               <div
                 key={idx}
-                className={`p-4 rounded-xl border flex gap-3 items-start transition-colors hover:shadow-sm ${
-                  anomaly.risk_level === 'high'
+                className={`p-4 rounded-xl border flex gap-3 items-start cursor-pointer transition-colors hover:shadow-sm ${
+                  anomalies > 20
                     ? 'border-danger/20 bg-danger-50/50 hover:bg-danger-50'
                     : 'border-warning/20 bg-warning-50/50 hover:bg-warning-50'
                 }`}
+                onClick={() => navigate(`/app/datasets/${row.analysis_id || row.id}`)}
               >
-                <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 ${anomaly.risk_level === 'high' ? 'bg-danger-50 text-danger' : 'bg-warning-50 text-warning'}`}>
+                <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 ${anomalies > 20 ? 'bg-danger-50 text-danger' : 'bg-warning-50 text-warning'}`}>
                   <AlertTriangle className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-navy leading-tight">{anomaly.type || 'Process Anomaly'}</p>
-                  <p className="text-xs text-content-secondary mt-1 leading-relaxed line-clamp-2">
-                    {anomaly.description || `Detected in case ${anomaly.case_id}`}
+                  <p className="text-sm font-bold text-navy leading-tight">{anomalies} anomalies detected</p>
+                  <p className="text-xs text-content-secondary mt-1 leading-relaxed truncate" title={row.filename}>
+                    File: {row.filename || 'Unknown Report'}
                   </p>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
 
           {/* Quick Upload CTA */}

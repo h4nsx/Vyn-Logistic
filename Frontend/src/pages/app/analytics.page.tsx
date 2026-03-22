@@ -8,9 +8,8 @@ import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 
 import { Button } from '../../shared/components/ui/Button';
-// FIX 2: Removed unused 'Badge' import
 import { LoadingSpinner } from '../../shared/components/feedback/LoadingSpinner';
-import { analyticsService } from '../../features/analytics/api/analytics.service';
+import { datasetService } from '../../features/datasets/api/datasets.service';
 import { useAnalyticsStore } from '../../features/analytics/store';
 
 const stepDurationData = [
@@ -26,43 +25,39 @@ export function AnalyticsPage() {
   const { dateRange, setDateRange } = useAnalyticsStore();
 
   const { data: resultsData, isLoading: loadingResults } = useQuery({
-    queryKey: ['results'],
-    queryFn: analyticsService.getResults,
-  });
-
-  const { data: anomaliesData, isLoading: loadingAnomalies } = useQuery({
-    queryKey: ['anomalies'],
-    queryFn: analyticsService.getAnomalies,
+    queryKey: ['integrated_analyses'],
+    queryFn: datasetService.getIntegratedAnalyses,
   });
 
   const results = Array.isArray(resultsData) 
     ? resultsData 
     : (Array.isArray((resultsData as any)?.records) ? (resultsData as any).records : (Array.isArray((resultsData as any)?.data) ? (resultsData as any).data : (Array.isArray((resultsData as any)?.result) ? (resultsData as any).result : [])));
-    
-  const anomalies = Array.isArray(anomaliesData) 
-    ? anomaliesData 
-    : (Array.isArray((anomaliesData as any)?.records) ? (anomaliesData as any).records : (Array.isArray((anomaliesData as any)?.data) ? (anomaliesData as any).data : (Array.isArray((anomaliesData as any)?.result) ? (anomaliesData as any).result : [])));
 
   const trendData = useMemo(() => {
     return results
       .slice(-10)
-      .map((item: any) => ({
-        date: dayjs(item.timestamp).format('DD MMM'),
-        risk: item.risk_score || item.avg_risk_score || 0,
-        efficiency: 100 - (item.risk_score || item.avg_risk_score || 0)
-      }));
+      .map((item: any) => {
+        const riskScore = item.overall_result?.avg_risk_score || item.risk_score || 0;
+        return {
+          date: dayjs(item.analyzed_at || item.timestamp || item.createdAt).format('DD MMM'),
+          risk: riskScore,
+          efficiency: 100 - riskScore
+        };
+      });
   }, [results]);
 
   const nodeData = useMemo(() => {
-    const counts: Record<string, number> = {};
-    anomalies.forEach((a: any) => {
-      const type = a.type || 'Unknown';
-      counts[type] = (counts[type] || 0) + 1;
-    });
-    return Object.entries(counts).map(([name, count]) => ({ name, count }));
-  }, [anomalies]);
+    // Instead of plotting anomaly types (which are not available in list API),
+    // Plot the anomaly density spread across the most recent historical analysis files
+    return results.slice(0, 7).map((item: any) => ({
+      name: (item.filename || item.analysis_id || 'Unknown').slice(0, 15) + '...',
+      count: item.overall_result?.anomaly_count || 0
+    }));
+  }, [results]);
+  
+  const totalAnomalies = results.reduce((acc: number, curr: any) => acc + (curr.overall_result?.anomaly_count || 0), 0);
 
-  if (loadingResults || loadingAnomalies) return <LoadingSpinner className="h-[80vh]" />;
+  if (loadingResults) return <LoadingSpinner className="h-[80vh]" />;
 
   return (
     <div className="space-y-8">
@@ -93,15 +88,15 @@ export function AnalyticsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <KpiCard 
           title="Avg. Risk Score" 
-          value={results.length ? (results.reduce((acc: number, curr: any) => acc + (curr.risk_score || curr.avg_risk_score || 0), 0) / results.length).toFixed(1) : '—'} 
+          value={results.length ? (results.reduce((acc: number, curr: any) => acc + (curr.overall_result?.avg_risk_score || curr.risk_score || 0), 0) / results.length).toFixed(1) : '—'} 
           trend={results.length > 0 ? "down" : null} 
           label={results.length ? "-12% vs last month" : "No data"}
         />
         <KpiCard 
           title="Total Anomalies" 
-          value={anomalies.length ? anomalies.length : '—'} 
-          trend={anomalies.length > 0 ? "up" : null} 
-          label={anomalies.length ? "+4 detected today" : "No data"}
+          value={totalAnomalies > 0 ? totalAnomalies : '—'} 
+          trend={totalAnomalies > 0 ? "up" : null} 
+          label={totalAnomalies > 0 ? "+4 detected today" : "No data"}
         />
         <KpiCard 
           title="System Health" 
@@ -111,7 +106,7 @@ export function AnalyticsPage() {
         />
       </div>
 
-      {results.length === 0 && anomalies.length === 0 ? (
+      {results.length === 0 ? (
         <div className="bg-white border border-border shadow-sm rounded-2xl p-16 text-center mt-8">
           <div className="w-16 h-16 bg-navy-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <Info className="w-8 h-8 text-navy opacity-50" />
@@ -141,7 +136,7 @@ export function AnalyticsPage() {
             </div>
 
             <div className="bg-white p-6 rounded-2xl border border-border shadow-card">
-              <h3 className="font-bold text-navy mb-6">Anomaly Distribution</h3>
+              <h3 className="font-bold text-navy mb-6">Anomaly Dataset Density</h3>
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={nodeData} layout="vertical" margin={{ left: 20 }}>
@@ -149,7 +144,7 @@ export function AnalyticsPage() {
                     <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#475569'}} width={100} />
                     <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
                     <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={24}>
-                      {nodeData.map((_, index) => (
+                      {nodeData.map((_: any, index: number) => (
                         <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#1e3a5f' : '#0891b2'} />
                       ))}
                     </Bar>
