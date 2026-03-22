@@ -8,7 +8,7 @@ from pymongo.errors import PyMongoError
 
 from app.config import settings
 from app.database import create_indexes, close_connection
-from app.api import upload, anomalies, process, results, entity, auth, integrated_csv_proxy
+from app.api import anomalies, process, results, entity, auth, integrated_csv_proxy
 
 logging.basicConfig(
     level=logging.INFO,
@@ -43,7 +43,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(upload.router, prefix="/api", tags=["Upload"])
 app.include_router(anomalies.router, prefix="/api", tags=["Anomalies"])
 app.include_router(process.router, prefix="/api", tags=["Process"])
 app.include_router(results.router, prefix="/api", tags=["Results"])

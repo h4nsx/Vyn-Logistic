@@ -35,16 +35,6 @@ async def predict_single(entity_type: str, body: EntityPredictRequest):
         logger.error(f"AI entity predict error [{et}]: {exc}")
         raise HTTPException(status_code=502, detail=f"AI model error: {exc}")
 
-    db = get_db()
-    await db.entity_results.insert_one(
-        {
-            "entity_type": et,
-            "input": body.data,
-            "result": result,
-            "predicted_at": datetime.now(timezone.utc),
-        }
-    )
-
     return result
 
 
@@ -63,16 +53,6 @@ async def predict_batch(entity_type: str, body: EntityBatchPredictRequest):
     except Exception as exc:
         logger.error(f"AI entity batch predict error [{et}]: {exc}")
         raise HTTPException(status_code=502, detail=f"AI model error: {exc}")
-
-    db = get_db()
-    await db.entity_results.insert_one(
-        {
-            "entity_type": et,
-            "input": body.rows,
-            "result": result,
-            "predicted_at": datetime.now(timezone.utc),
-        }
-    )
 
     return result
 

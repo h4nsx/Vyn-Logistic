@@ -19,18 +19,33 @@ logger = logging.getLogger(__name__)
 @router.get("/process/{case_id}", summary="Get AI analysis result for a specific case")
 async def get_process(case_id: str):
     db = get_db()
-    doc = await db.case_results.find_one({"case_id": case_id}, {"_id": 0})
-    if not doc:
-        raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
-    return {
-        "case_id": doc["case_id"],
-        "process_code": doc.get("process_code"),
-        "risk_score": doc.get("risk_score"),
-        "is_anomaly": doc.get("is_anomaly"),
-        "analyzed_at": doc.get("analyzed_at"),
-        "result": doc.get("result"),
-    }
+    # Search case_results first (single case flow)
+    doc = await db.case_results.find_one({"case_id": case_id}, {"_id": 0})
+    if doc:
+        return {
+            "source": "case_results",
+            "case_id": doc["case_id"],
+            "process_code": doc.get("process_code"),
+            "risk_score": doc.get("risk_score"),
+            "is_anomaly": doc.get("is_anomaly"),
+            "analyzed_at": doc.get("analyzed_at"),
+            "result": doc.get("result"),
+        }
+
+    # Fallback: search integrated_analyses by analysis_id
+    doc = await db.integrated_analyses.find_one({"analysis_id": case_id}, {"_id": 0})
+    if doc:
+        return {
+            "source": "integrated_analyses",
+            "analysis_id": doc["analysis_id"],
+            "filename": doc.get("filename"),
+            "overall_result": doc.get("overall_result"),
+            "process_results": doc.get("process_results"),
+            "analyzed_at": doc.get("analyzed_at"),
+        }
+
+    raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
 
 # ── POST /api/process/analyze ──────────────────────────────────────────────────
