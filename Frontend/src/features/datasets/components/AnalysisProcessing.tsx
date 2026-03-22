@@ -40,8 +40,11 @@ export const AnalysisProcessing = ({ onFinished }: { onFinished: () => void }) =
             setCurrentDataset('latest'); // Used as fallback ID routing
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("AI Analysis encountered an error:", error);
+        if (error.response && error.response.data) {
+          console.error("Backend Error Details:", JSON.stringify(error.response.data, null, 2));
+        }
       } finally {
         // Finalize state
         clearInterval(simulationInterval);

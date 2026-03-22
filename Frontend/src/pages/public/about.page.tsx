@@ -176,36 +176,36 @@ export function AboutPage() {
               { 
                 name: 'Võ Tuấn Hùng (Hans)', 
                 role: 'Team Leader', 
-                bio: 'AI researcher focused on supply chain optimization.', 
+                bio: 'Focus on building intelligent systems that solve real-world problems.', 
                 color: 'from-orange to-orange-dark',
-                image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&h=200&auto=format&fit=crop',
+                image: '../../../public/team/4.png',
                 email: 'votuanhung1205.work@gmail.com',
                 github: 'https://github.com/h4nsx'
               },
               { 
                 name: 'Nguyễn Tăng Minh Thông (Stone)', 
                 role: 'Backend Engineer', 
-                bio: 'Expert in high-throughput data pipelines and ML architecture.', 
+                bio: 'Focus on building robust backend systems and data pipelines.', 
                 color: 'from-navy to-navy-dark',
-                image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&h=200&auto=format&fit=crop',
+                image: '../../../public/team/1.jpg',
                 email: 'Thongntmse171742@fpt.edu.vn',
                 github: 'https://github.com/thongntms171742'
               },
               { 
                 name: 'Trần Quốc Huy (Quwy)', 
                 role: 'AI Engineer', 
-                bio: 'Obsessed with creating zero-friction, human-centric interfaces.', 
+                bio: 'Focus on building intelligent systems that solve real-world problems.', 
                 color: 'from-cyan to-cyan-dark',
-                image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&h=200&auto=format&fit=crop',
+                image: '../../../public/team/3.jpg',
                 email: 'Paper250805@gmail.com',
                 github: 'https://github.com/quwyimn'
               },
               { 
                 name: 'Nguyễn Văn Linh (Louis)', 
                 role: 'Frontend & Documentation', 
-                bio: 'Specialist in neural bottleneck detection and risk modeling.', 
+                bio: 'Focus on building user-friendly interfaces and clear documentation.', 
                 color: 'from-success to-success-dark',
-                image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=200&h=200&auto=format&fit=crop',
+                image: '../../../public/team/2.jpeg',
                 email: 'nglinhvan189@gmail.com',
                 github: 'https://github.com/mazino189'
               },

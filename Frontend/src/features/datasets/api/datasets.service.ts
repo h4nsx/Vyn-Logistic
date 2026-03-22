@@ -1,10 +1,10 @@
-import { apiClient, mlClient } from '../../../shared/lib/axios';
+import { apiClient } from '../../../shared/lib/axios';
 
 export const datasetService = {
   validateCsv: async (file: File, onProgress?: (p: number) => void) => {
     const formData = new FormData();
     formData.append('file', file);
-    const { data } = await mlClient.post('/api/validate/integrated_csv', formData, {
+    const { data } = await apiClient.post('/validate/integrated_csv', formData, {
       onUploadProgress: (e) => {
         if (onProgress) {
           const progress = Math.round((e.loaded * 100) / (e.total || 100));
@@ -19,7 +19,8 @@ export const datasetService = {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('mapping', JSON.stringify(mapping));
-    const { data } = await mlClient.post('/api/analyze/integrated_csv', formData);
+    
+    const { data } = await apiClient.post('/analyze/integrated_csv', formData);
     return data;
   },
 
@@ -35,6 +36,40 @@ export const datasetService = {
 
   getCaseDetail: async (caseId: string) => {
     const { data } = await apiClient.get(`/process/${caseId}`);
+    return data;
+  },
+
+  uploadCsv: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await apiClient.post('/upload', formData);
+    return data;
+  },
+
+  getUploadDetails: async (uploadId: string) => {
+    const { data } = await apiClient.get(`/uploads/${uploadId}`);
+    return data;
+  },
+
+  analyzeProcess: async (events: any) => {
+    const { data } = await apiClient.post('/process/analyze', events);
+    return data;
+  },
+
+  analyzeProcessFile: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await apiClient.post('/process/analyze-file', formData);
+    return data;
+  },
+
+  getIntegratedAnalyses: async () => {
+    const { data } = await apiClient.get('/integrated_analyses');
+    return data;
+  },
+
+  getIntegratedAnalysisDetail: async (analysisId: string) => {
+    const { data } = await apiClient.get(`/integrated_analyses/${analysisId}`);
     return data;
   }
 };

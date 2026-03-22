@@ -52,4 +52,19 @@ export const authService = {
     const { data } = await apiClient.get('/auth/me');
     return data;
   },
+
+  socialLoginGoogle: async (token: string) => {
+    const { data } = await apiClient.post('/auth/social/google', { token });
+    return data;
+  },
+
+  socialLoginGithub: async (token: string) => {
+    const { data } = await apiClient.post('/auth/social/github', { token });
+    return data;
+  },
+
+  refreshToken: async () => {
+    const { data } = await apiClient.post('/auth/refresh');
+    return data;
+  }
 };

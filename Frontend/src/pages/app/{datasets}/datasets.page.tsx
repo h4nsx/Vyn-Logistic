@@ -28,10 +28,12 @@ export function DatasetsPage() {
 
   const { data: datasetsData, isLoading } = useQuery({
     queryKey: ['datasets'],
-    queryFn: datasetService.getAllUploads,
+    queryFn: datasetService.getIntegratedAnalyses,
   });
 
-  const datasets = Array.isArray(datasetsData) ? datasetsData : [];
+  const datasets = Array.isArray(datasetsData) 
+    ? datasetsData 
+    : (Array.isArray(datasetsData?.records) ? datasetsData.records : (Array.isArray(datasetsData?.data) ? datasetsData.data : (Array.isArray(datasetsData?.result) ? datasetsData.result : [])));
 
   const deleteMutation = useMutation({
     mutationFn: datasetService.delete,
@@ -101,52 +103,56 @@ export function DatasetsPage() {
           </div>
 
           {/* Rows */}
-          {filteredDatasets.map((row: any) => (
+          {filteredDatasets.map((row: any, i: number) => {
+            const rowId = row.id || row.analysis_id || row._id || `temp-${i}`;
+            const rowStatus = row.status || 'Analyzed';
+            
+            return (
             <motion.div
-              key={row.id}
+              key={rowId}
               variants={rowVariants}
               className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 items-center px-6 py-4 border-b border-border last:border-0 hover:bg-navy-50/20 cursor-pointer transition-colors group"
-              onClick={() => navigate(`/app/datasets/${row.id}`)}
+              onClick={() => navigate(`/app/datasets/${rowId}`)}
             >
               {/* Name */}
               <div className="flex items-center gap-3 min-w-0">
                 <div className="p-2 bg-navy-50 rounded-lg text-navy shrink-0 group-hover:bg-navy group-hover:text-white transition-colors">
                   <FileText className="w-4 h-4" />
                 </div>
-                <span className="font-semibold text-navy truncate">{row.filename || row.name}</span>
+                <span className="font-semibold text-navy truncate">{row.filename || row.name || `Analysis Session ${rowId.slice(0,6)}...`}</span>
               </div>
 
               {/* Status */}
               <div>
                 <Badge
-                  variant={row.status === 'Analyzed' ? 'success' : row.status === 'Processing' ? 'warning' : 'danger'}
-                  dot={row.status === 'Processing'}
+                  variant={rowStatus === 'Analyzed' ? 'success' : rowStatus === 'Processing' ? 'warning' : 'danger'}
+                  dot={rowStatus === 'Processing'}
                 >
-                  {row.status}
+                  {rowStatus}
                 </Badge>
               </div>
 
               {/* Records */}
               <span className="text-sm text-content-secondary font-medium">
-                {(row.rows || 0).toLocaleString()}
+                {(row.overall_result?.total_case_count || row.validation_summary?.total_rows || row.rows || row.total_case_count || row.total_rows || 0).toLocaleString()} <span className="text-xs text-content-muted">cases</span>
               </span>
 
               {/* Date */}
               <span className="text-sm text-content-muted">
-                {dayjs(row.createdAt).format('MMM DD, YYYY')}
+                {row.analyzed_at || row.createdAt || row.timestamp || row.created_at ? dayjs(row.analyzed_at || row.createdAt || row.timestamp || row.created_at).format('MMM DD, YYYY') : 'Recent'}
               </span>
 
               {/* Actions */}
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                 <button
-                  onClick={() => navigate(`/app/datasets/${row.id}`)}
+                  onClick={() => navigate(`/app/datasets/${rowId}`)}
                   className="p-2 hover:bg-navy-50 text-navy rounded-lg transition-colors"
                   title="Open Analysis"
                 >
                   <ArrowUpRight className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => deleteMutation.mutate(row.id)}
+                  onClick={() => deleteMutation.mutate(rowId)}
                   className="p-2 hover:bg-danger-50 text-danger rounded-lg transition-colors"
                   title="Delete"
                 >
@@ -154,7 +160,8 @@ export function DatasetsPage() {
                 </button>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </motion.div>
       ) : (
         <EmptyState

@@ -54,11 +54,11 @@ export function SmartColumnMapping({ onConfirm }: SmartColumnMappingProps) {
     if (!isFormValid) return;
     setIsConfirming(true);
     
-    // Construct exactly as requested: user-defined rows matching standard system targets
-    // Assuming backend wants: { "Uploaded CSV Column": "System Required Field" }
+    // Fix for Backend Validation: Backend maps System Required Field dynamically
+    // Expected JSON shape: { "row_group": "Your CSV Column Name" }
     const finalMapping: Record<string, string> = {};
     Object.entries(mappings).forEach(([sysField, csvCol]) => {
-      if (csvCol) finalMapping[csvCol] = sysField;
+      if (csvCol) finalMapping[sysField] = csvCol;
     });
     
     setMappingData(finalMapping);

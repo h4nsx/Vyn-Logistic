@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 import { Upload, FileText, X, CheckCircle2 } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/Button';
 import { useDatasetStore } from '../../../features/datasets/store';
-import { datasetService } from '../../../features/datasets/api/datasets.service';
+
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FileUploadZoneProps {
@@ -13,7 +13,7 @@ interface FileUploadZoneProps {
 export const FileUploadZone = ({ onSuccess }: FileUploadZoneProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  const { setUploadProgress, uploadProgress, setValidationData } = useDatasetStore();
+  const { uploadProgress, setValidationData } = useDatasetStore();
   const [isUploading, setIsUploading] = useState(false);
 
   const handleFile = (f: File | null) => {
@@ -75,7 +75,6 @@ export const FileUploadZone = ({ onSuccess }: FileUploadZoneProps) => {
         const nonEmptyCols = cols.filter(c => c.length > 0);
         
         // At least 3 populated values means we reliably hit the structural headers
-        // (Since validation requires 7 fields anyway, 3 is an extremely generous floor)
         if (nonEmptyCols.length >= 3) {
           extractedColumns = cols;
           break;
@@ -84,12 +83,13 @@ export const FileUploadZone = ({ onSuccess }: FileUploadZoneProps) => {
       
       if (extractedColumns.length > 0) {
          setValidationData({ columns: extractedColumns, suggestions: {} });
+         setIsUploading(false);
+         // Move to Mapping phase without a permanent ID yet since upload hasn't been finalized with mapping
+         onSuccess({ id: 'pending-mapping' }); 
       } else {
          console.error("Critical failure: Could not discover any structural header row in the provided file.");
+         setIsUploading(false);
       }
-      
-      setIsUploading(false);
-      onSuccess({ id: 'active-upload-session' });
     };
     
     reader.onerror = () => {

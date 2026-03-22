@@ -34,12 +34,17 @@ export function DashboardPage() {
     queryFn: analyticsService.getResults,
   });
 
-  const anomalies = Array.isArray(anomaliesData) ? anomaliesData : [];
-  const results = Array.isArray(resultsData) ? resultsData : [];
+  const anomalies = Array.isArray(anomaliesData) 
+    ? anomaliesData 
+    : (Array.isArray(anomaliesData?.records) ? anomaliesData.records : (Array.isArray(anomaliesData?.data) ? anomaliesData.data : (Array.isArray(anomaliesData?.result) ? anomaliesData.result : [])));
 
-  const highRiskCount = anomalies.filter((a: any) => a.risk_level === 'high' || a.risk === 'high').length;
+  const results = Array.isArray(resultsData) 
+    ? resultsData 
+    : (Array.isArray(resultsData?.records) ? resultsData.records : (Array.isArray(resultsData?.data) ? resultsData.data : (Array.isArray(resultsData?.result) ? resultsData.result : [])));
+
+  const highRiskCount = anomalies.filter((a: any) => a.risk_level?.toLowerCase() === 'high' || a.risk?.toLowerCase() === 'high').length;
   const avgRisk = results.length
-    ? (results.reduce((acc: number, curr: any) => acc + (curr.risk_score || 0), 0) / results.length).toFixed(1)
+    ? (results.reduce((acc: number, curr: any) => acc + (curr.risk_score || curr.avg_risk_score || 0), 0) / results.length).toFixed(1)
     : '—';
 
   if (loadingAnomalies || loadingResults) {

@@ -35,22 +35,27 @@ export function AnalyticsPage() {
     queryFn: analyticsService.getAnomalies,
   });
 
-  const results = Array.isArray(resultsData) ? resultsData : [];
-  const anomalies = Array.isArray(anomaliesData) ? anomaliesData : [];
+  const results = Array.isArray(resultsData) 
+    ? resultsData 
+    : (Array.isArray((resultsData as any)?.records) ? (resultsData as any).records : (Array.isArray((resultsData as any)?.data) ? (resultsData as any).data : (Array.isArray((resultsData as any)?.result) ? (resultsData as any).result : [])));
+    
+  const anomalies = Array.isArray(anomaliesData) 
+    ? anomaliesData 
+    : (Array.isArray((anomaliesData as any)?.records) ? (anomaliesData as any).records : (Array.isArray((anomaliesData as any)?.data) ? (anomaliesData as any).data : (Array.isArray((anomaliesData as any)?.result) ? (anomaliesData as any).result : [])));
 
   const trendData = useMemo(() => {
     return results
       .slice(-10)
-      .map(item => ({
+      .map((item: any) => ({
         date: dayjs(item.timestamp).format('DD MMM'),
-        risk: item.risk_score || 0,
-        efficiency: 100 - (item.risk_score || 0)
+        risk: item.risk_score || item.avg_risk_score || 0,
+        efficiency: 100 - (item.risk_score || item.avg_risk_score || 0)
       }));
   }, [results]);
 
   const nodeData = useMemo(() => {
     const counts: Record<string, number> = {};
-    anomalies.forEach(a => {
+    anomalies.forEach((a: any) => {
       const type = a.type || 'Unknown';
       counts[type] = (counts[type] || 0) + 1;
     });
@@ -88,7 +93,7 @@ export function AnalyticsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <KpiCard 
           title="Avg. Risk Score" 
-          value={results.length ? (results.reduce((acc, curr) => acc + (curr.risk_score || 0), 0) / results.length).toFixed(1) : '—'} 
+          value={results.length ? (results.reduce((acc: number, curr: any) => acc + (curr.risk_score || curr.avg_risk_score || 0), 0) / results.length).toFixed(1) : '—'} 
           trend={results.length > 0 ? "down" : null} 
           label={results.length ? "-12% vs last month" : "No data"}
         />

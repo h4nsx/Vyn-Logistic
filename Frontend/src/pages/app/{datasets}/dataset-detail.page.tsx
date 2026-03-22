@@ -13,35 +13,42 @@ export function DatasetDetailPage() {
   const navigate = useNavigate();
   const { analysisResult } = useDatasetStore();
 
-  const isLatest = id === 'latest' || !id;
+  const isLatest = id === 'latest' || id === 'active-upload-session' || id === 'pending-mapping' || !id;
 
   const { data: queryData, isLoading, error } = useQuery({
     queryKey: ['dataset', id],
-    queryFn: () => datasetService.getCaseDetail(id!),
+    queryFn: () => datasetService.getIntegratedAnalysisDetail(id!),
     enabled: !isLatest && !!id,
   });
 
-  const data = isLatest ? analysisResult : queryData;
+  const dataPayload = isLatest ? analysisResult : queryData;
+  // Intelligently unwrap the nested backend payload structure, extracting [0] if it's trapped in a records array.
+  let actualData = dataPayload?.records ? dataPayload.records[0] : (dataPayload?.data || dataPayload?.result || dataPayload);
+  if (Array.isArray(actualData) && actualData.length > 0) actualData = actualData[0];
 
   if (isLoading && !isLatest) return <LoadingSpinner className="h-[80vh]" label="Loading analysis..." />;
 
-  if (error || !data || !data.overall_result) {
+  // Validate presence of expected data nodes
+  if (error || !actualData || (!actualData.overall_result && !actualData.summary)) {
     return (
-      <div className="text-center py-20 bg-white rounded-2xl border border-border">
-        <AlertCircle className="w-10 h-10 text-content-muted mx-auto mb-3" />
-        <p className="font-semibold text-navy">Analysis Result Not Found</p>
-        <p className="text-sm text-content-secondary mt-1">Please upload a valid dataset to view intelligence reports.</p>
+      <div className="text-center py-20 bg-white rounded-2xl border border-border max-w-2xl mx-auto">
+        <AlertCircle className="w-10 h-10 text-orange mx-auto mb-3" />
+        <p className="font-semibold text-navy">Analysis Payload Structure Mismatch</p>
+        <p className="text-sm text-content-secondary mt-1 mb-4">The backend analyzed the file successfully, but returned a different JSON shape than the UI expects.</p>
+        <div className="bg-surface p-4 rounded-xl text-left overflow-x-auto text-xs font-mono text-content-muted border border-border mx-4">
+          <pre>{JSON.stringify(dataPayload || error, null, 2)}</pre>
+        </div>
         <Button variant="ghost" onClick={() => navigate('/app/upload')} className="mt-4">
-          ← New Analysis
+          ← Try Another
         </Button>
       </div>
     );
   }
 
-  const { overall_result: overall, process_results: processes } = data;
+  const { overall_result: overall, process_results: processes } = actualData;
   
-  const riskScore = overall.avg_risk_score || 0;
-  const riskLevel = riskScore >= 50 ? 'warning' : 'healthy'; // Adjusted based on avg score of 50.128
+  const riskScore = overall?.avg_risk_score || 0;
+  const riskLevel = riskScore >= 50 ? 'warning' : 'healthy';
   
   const riskConfig = {
     warning: { color: 'text-orange', bg: 'bg-orange-50', ring: 'ring-orange/20', badge: 'warning' as const, label: 'Elevated Risk' },
@@ -188,6 +195,58 @@ export function DatasetDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Detected Anomalies Deep Dive */}
+      {(() => {
+        // Aggressively extract anomaly data from any potential backend payload structures
+        const anomaliesList = actualData.anomalies || actualData.raw_result?.anomalies || actualData.detailed_results || [];
+        
+        if (!Array.isArray(anomaliesList) || anomaliesList.length === 0) return null;
+
+        return (
+          <div className="mt-12 space-y-4 animate-fade-in">
+             <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-navy flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-orange" />
+                  Detected Critical Anomalies
+                </h3>
+                <Badge variant="warning">{anomaliesList.length} Flagged</Badge>
+             </div>
+             
+             <div className="bg-white rounded-2xl border border-border shadow-card overflow-hidden">
+               <div className="grid grid-cols-[1.5fr_1fr_1fr_2fr] gap-4 px-6 py-4 border-b border-border bg-surface/50 text-[11px] font-semibold text-content-muted uppercase tracking-wider">
+                  <span>Record ID</span>
+                  <span>Type</span>
+                  <span>Risk Score</span>
+                  <span>Diagnostic Context</span>
+               </div>
+               <div className="divide-y divide-border max-h-[500px] overflow-y-auto">
+                 {anomaliesList.map((anomaly: any, i: number) => (
+                   <div key={anomaly.id || anomaly.record_id || i} className="grid grid-cols-[1.5fr_1fr_1fr_2fr] gap-4 px-6 py-4 items-center hover:bg-orange-50/20 transition-colors">
+                     <span className="font-mono text-sm font-semibold text-navy">
+                        {anomaly.record_id || anomaly.case_id || anomaly.id || `Unknown-${i}`}
+                     </span>
+                     
+                     <div>
+                       <Badge variant={anomaly.risk_level === 'High' ? 'danger' : 'warning'}>
+                         {anomaly.anomaly_type || anomaly.type || 'Operational'}
+                       </Badge>
+                     </div>
+                     
+                     <span className="text-sm font-bold text-orange">
+                       {(anomaly.risk_score || anomaly.score || 0).toFixed(1)}
+                     </span>
+                     
+                     <span className="text-sm text-content-secondary line-clamp-2" title={anomaly.description || anomaly.details}>
+                       {anomaly.description || anomaly.details || anomaly.reason || 'Deviates from standard predictive bounds.'}
+                     </span>
+                   </div>
+                 ))}
+               </div>
+             </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
