@@ -1,4 +1,6 @@
 import logging
+import uuid
+from datetime import datetime, timezone
 from typing import Any, Optional
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile
@@ -6,7 +8,7 @@ from pydantic import BaseModel
 
 from app.config import PROCESS_ALIASES, SUPPORTED_PROCESSES
 from app.database import get_db
-from app.services.ai_client import analyze_case_file, analyze_case_json
+from app.services.ai_client import analyze_case_file, analyze_case_json, extract_risk_score
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -66,9 +68,32 @@ async def analyze_single_case(body: AnalyzeCaseRequest):
         logger.error(f"AI model error on /process/analyze: {exc}")
         raise HTTPException(status_code=502, detail=f"AI model error: {exc}")
 
+    case_id = body.case_id or str(uuid.uuid4())
+    risk = extract_risk_score(result)
+
+    db = get_db()
+    await db.case_results.update_one(
+        {"case_id": case_id},
+        {
+            "$set": {
+                "process_code": normalized_code,
+                "case_id": case_id,
+                "result": result,
+                "risk_score": risk,
+                "is_anomaly": risk is not None and risk >= 80.0,
+                "analyzed_at": datetime.now(timezone.utc),
+            }
+        },
+        upsert=True,
+    )
+
+    logger.info(f"case {case_id} saved | process={normalized_code} risk={risk}")
+
     return {
         "process_code": normalized_code,
-        "case_id": body.case_id,
+        "case_id": case_id,
+        "risk_score": risk,
+        "is_anomaly": risk is not None and risk >= 80.0,
         "result": result,
     }
 
@@ -103,8 +128,35 @@ async def analyze_single_case_file(
         logger.error(f"AI model error on /process/analyze-file: {exc}")
         raise HTTPException(status_code=502, detail=f"AI model error: {exc}")
 
+    resolved_case_id = (
+        case_id
+        or result.get("case_id")
+        or str(uuid.uuid4())
+    )
+    risk = extract_risk_score(result)
+
+    db = get_db()
+    await db.case_results.update_one(
+        {"case_id": resolved_case_id},
+        {
+            "$set": {
+                "process_code": normalized_code,
+                "case_id": resolved_case_id,
+                "result": result,
+                "risk_score": risk,
+                "is_anomaly": risk is not None and risk >= 80.0,
+                "analyzed_at": datetime.now(timezone.utc),
+            }
+        },
+        upsert=True,
+    )
+
+    logger.info(f"case {resolved_case_id} saved | process={normalized_code} risk={risk}")
+
     return {
         "process_code": normalized_code,
-        "case_id": case_id,
+        "case_id": resolved_case_id,
+        "risk_score": risk,
+        "is_anomaly": risk is not None and risk >= 80.0,
         "result": result,
     }
