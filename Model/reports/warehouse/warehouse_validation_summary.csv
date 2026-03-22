@@ -1,0 +1,2 @@
+process_code,cases_analyzed,cases_ok,avg_risk,p95_risk,high_risk_cases_80plus,high_risk_rate_80plus,avg_top_step_duration_min,avg_top_step_deviation_p95
+WAREHOUSE_FULFILLMENT,12000,12000,49.500083333333336,94.04999999999927,2400,0.2,53.99184775,1.23975025

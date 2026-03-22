@@ -1,0 +1,5 @@
+﻿bundle,business_focus
+FLOW_BALANCE,"Mất cân bằng giữa picking, packing và handoff"
+CONGESTION,QC/staging/internal wait trở thành choke point
+REWORK,Retouch / repeat handling trong kho
+FULL_WAREHOUSE,Tổng hợp flow balance + congestion + rework + context

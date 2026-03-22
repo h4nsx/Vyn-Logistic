@@ -1,0 +1,2 @@
+process_code,cases_analyzed,cases_ok,avg_risk,p95_risk,high_risk_cases_80plus,high_risk_rate_80plus,critical_cases,critical_rate
+TRUCKING_DELIVERY_FLOW,12000,12000,49.500083333333336,94.04999999999927,2400,20.0,2833,23.608333333333334

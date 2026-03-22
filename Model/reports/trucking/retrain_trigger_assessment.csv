@@ -1,0 +1,7 @@
+﻿trigger_name,observed_metric,observed_value,threshold_rule,triggered
+route_pattern_shift,linehaul_ratio mean change,0.0,abs(change) >= 0.15,False
+hub_touch_surge,hub_depot_touch_count mean change,0.0,change >= 0.20,False
+delivery_attempt_surge,delivery_attempt_count mean change,0.0,change >= 0.20,False
+inter_event_gap_shift,max_gap_to_next_min p95 change,,change >= 0.20,
+return_flow_shift,has_return_flow mean change,0.0,change >= 0.20,False
+registry_change,registry step count,29.0,manual review,

@@ -1,0 +1,6 @@
+﻿metric,description
+release_gate_reasonable,Decl-to-release và release-to-handover delay không lệch bất hợp lý sau retrain
+amendment_loop_reasonable,Recheck / amendment loop không tăng méo sau retrain
+exam_and_hold_reasonable,Inspection / hold pressure vẫn phản ánh hợp lý
+candidate_artifacts_complete,Đủ model/scaler/baselines/schema/quantiles/summary
+rollback_possible,Đã có backup artifact production trước khi retrain

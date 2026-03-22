@@ -1,0 +1,2 @@
+﻿process_code,case_count,avg_risk_score,avg_anomaly_score,anomaly_count,anomaly_rate,avg_total_process_time_min,avg_cycle_time_min,avg_qc_ratio,avg_staging_ratio,avg_max_gap_to_next_min,dominant_internal_delay_component,dominant_pressure_component,avg_operational_issue_count,max_risk_score
+WAREHOUSE_FULFILLMENT,12000,49.5,0.403702,2400,0.2,475.292,475.292,0.0927,0.0207,0.0,qc,qc,2.1,100

@@ -1,0 +1,2 @@
+﻿process_code,case_count,anomaly_rate,avg_total_process_time_min,dominant_delay_component,avg_delivery_attempt_count
+TRUCKING_DELIVERY_FLOW,12000,0.2,848.914,linehaul,2.0

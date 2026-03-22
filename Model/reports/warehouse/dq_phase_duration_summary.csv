@@ -1,0 +1,2 @@
+﻿avg_receiving_ratio,avg_putaway_ratio,avg_picking_ratio,avg_packing_ratio,avg_qc_ratio,avg_staging_ratio,avg_handoff_ratio,p95_staging_ratio,p95_qc_ratio
+0.0,0.0,0.0516,0.0732,0.0927,0.0207,0.0416,0.045,0.1574

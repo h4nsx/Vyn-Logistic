@@ -1,0 +1,7 @@
+﻿artifact,source_exists,copied,backup_path
+model.pkl,True,True,D:\logistics_AI\model\process_models_versioned\WAREHOUSE_FULFILLMENT__backup__20260314_134638\model.pkl
+scaler.pkl,True,True,D:\logistics_AI\model\process_models_versioned\WAREHOUSE_FULFILLMENT__backup__20260314_134638\scaler.pkl
+baselines.json,True,True,D:\logistics_AI\model\process_models_versioned\WAREHOUSE_FULFILLMENT__backup__20260314_134638\baselines.json
+feature_schema.json,True,True,D:\logistics_AI\model\process_models_versioned\WAREHOUSE_FULFILLMENT__backup__20260314_134638\feature_schema.json
+score_quantiles.json,True,True,D:\logistics_AI\model\process_models_versioned\WAREHOUSE_FULFILLMENT__backup__20260314_134638\score_quantiles.json
+train_summary.json,True,True,D:\logistics_AI\model\process_models_versioned\WAREHOUSE_FULFILLMENT__backup__20260314_134638\train_summary.json

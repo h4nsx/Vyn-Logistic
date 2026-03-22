@@ -1,0 +1,69 @@
+{
+  "process_code": "IMPORT_CUSTOMS_CLEARANCE",
+  "steps": [
+    {
+      "step_code": "STEP_001_DOC_RECEIVED",
+      "order_index": 1
+    },
+    {
+      "step_code": "STEP_002_DOC_VALIDATION",
+      "order_index": 2
+    },
+    {
+      "step_code": "STEP_003_HS_CLASSIFICATION",
+      "order_index": 3
+    },
+    {
+      "step_code": "STEP_004_SUBMIT_DECLARATION",
+      "order_index": 4
+    },
+    {
+      "step_code": "STEP_005_RISK_CHANNELING",
+      "order_index": 5
+    },
+    {
+      "step_code": "STEP_006_DOCUMENT_INSPECTION",
+      "order_index": 6
+    },
+    {
+      "step_code": "STEP_007_PHYSICAL_INSPECTION_COMPLETE",
+      "order_index": 7
+    },
+    {
+      "step_code": "STEP_008_LAB_TEST_COMPLETE",
+      "order_index": 8
+    },
+    {
+      "step_code": "STEP_009_DUTY_TAX_INVOICE_ISSUED",
+      "order_index": 9
+    },
+    {
+      "step_code": "STEP_010_PAYMENT_CONFIRMED",
+      "order_index": 10
+    },
+    {
+      "step_code": "STEP_011_CLEARANCE_APPROVED",
+      "order_index": 11
+    },
+    {
+      "step_code": "STEP_012_RELEASE_ORDER_ISSUED",
+      "order_index": 12
+    },
+    {
+      "step_code": "STEP_013_CARGO_RELEASED",
+      "order_index": 13
+    },
+    {
+      "step_code": "STEP_014_PORT_GATE_OUT",
+      "order_index": 14
+    },
+    {
+      "step_code": "STEP_015_HANDOFF_TO_CARRIER",
+      "order_index": 15
+    },
+    {
+      "step_code": "STEP_016_CUSTOMS_CLOSEOUT",
+      "order_index": 16
+    }
+  ]
+}

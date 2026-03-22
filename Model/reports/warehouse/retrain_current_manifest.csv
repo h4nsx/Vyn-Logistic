@@ -1,0 +1,2 @@
+﻿process_code,current_model_dir,feature_set,include_context_numeric,n_estimators,contamination,max_samples,max_features,random_state,feature_count,case_count
+WAREHOUSE_FULFILLMENT,D:\logistics_AI\model\process_models\WAREHOUSE_FULFILLMENT,CONGESTION,False,250,0.05,0.8,0.8,42,13,12000

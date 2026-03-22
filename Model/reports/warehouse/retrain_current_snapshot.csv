@@ -1,0 +1,2 @@
+﻿case_count,feature_count,avg_qc_ratio,avg_staging_ratio,avg_handoff_ratio,avg_pick_pack_ratio_gap,avg_congestion_index,avg_rework_index,p95_max_gap_to_next_min
+12000,13,0.0927,0.0207,0.0416,0.0328,0.1135,1.0,0.0

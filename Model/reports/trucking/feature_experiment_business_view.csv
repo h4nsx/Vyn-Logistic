@@ -1,0 +1,4 @@
+﻿experiment,business_focus
+A_transit_core,Transit core timing + linehaul/depot/last-mile structure
+B_transit_plus_flags,Transit core + failure/attempt/hub-touch issue flags
+C_transit_plus_flags_plus_context,Transit core + issue flags + contextual numeric environment

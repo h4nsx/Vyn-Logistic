@@ -1,0 +1,7 @@
+﻿artifact,exists,path
+model.pkl,True,D:\logistics_AI\model\process_models\WAREHOUSE_FULFILLMENT\model.pkl
+scaler.pkl,True,D:\logistics_AI\model\process_models\WAREHOUSE_FULFILLMENT\scaler.pkl
+baselines.json,True,D:\logistics_AI\model\process_models\WAREHOUSE_FULFILLMENT\baselines.json
+feature_schema.json,True,D:\logistics_AI\model\process_models\WAREHOUSE_FULFILLMENT\feature_schema.json
+score_quantiles.json,True,D:\logistics_AI\model\process_models\WAREHOUSE_FULFILLMENT\score_quantiles.json
+train_summary.json,True,D:\logistics_AI\model\process_models\WAREHOUSE_FULFILLMENT\train_summary.json

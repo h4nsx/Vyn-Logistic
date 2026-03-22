@@ -1,0 +1,17 @@
+{
+  "process_code": "IMPORT_CUSTOMS_CLEARANCE",
+  "events_rows_used": 68576,
+  "cases_used": 4286,
+  "include_context_numeric": false,
+  "n_estimators": 300,
+  "contamination": 0.06,
+  "random_state": 42,
+  "artifacts_dir": "D:\\logistics_AI\\model\\process_models\\IMPORT_CUSTOMS_CLEARANCE",
+  "validation_warnings": [],
+  "feature_report": {
+    "cases": 4286,
+    "dropped_cases": 0,
+    "repeated_case_count": 0,
+    "missing_step_cases": 0
+  }
+}

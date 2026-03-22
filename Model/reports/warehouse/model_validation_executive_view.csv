@@ -1,0 +1,2 @@
+﻿process_code,case_count,anomaly_rate,avg_cycle_time_min,dominant_internal_delay_component,avg_congestion_index
+WAREHOUSE_FULFILLMENT,12000,0.2,475.292,qc,0.1135

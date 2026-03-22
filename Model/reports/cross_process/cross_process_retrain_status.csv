@@ -1,0 +1,4 @@
+process_key,triggered_rule_count,triggered_rules,retrain_recommended
+trucking,0,,False
+warehouse,0,,False
+customs,0,,False

@@ -1,0 +1,2 @@
+﻿avg_qc_ratio,avg_staging_ratio,avg_max_gap_to_next_min,large_internal_wait_rate,qc_heavy_case_rate,staging_heavy_case_rate,avg_congestion_index
+0.0927,0.0207,0.0,1.0,0.05,0.05,0.1135

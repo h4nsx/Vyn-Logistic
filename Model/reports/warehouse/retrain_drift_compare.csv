@@ -1,0 +1,6 @@
+﻿metric,train_mean,current_mean,mean_rel_change,train_p95,current_p95,p95_rel_change
+qc_ratio,0.092744,0.092744,0.0,0.157351,0.157351,0.0
+staging_ratio,0.02073,0.02073,0.0,0.044986,0.044986,0.0
+handoff_ratio,0.041606,0.041606,0.0,0.07859,0.07859,0.0
+max_gap_to_next_min,0.0,0.0,,0.0,0.0,
+congestion_index,0.113474,0.113474,0.0,0.184494,0.184494,0.0

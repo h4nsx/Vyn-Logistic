@@ -1,0 +1,5 @@
+n_estimators,contamination,random_state,cases_used_train,events_rows_used,cases_analyzed_eval,cases_ok_eval,avg_risk_eval,p95_risk_eval,high_risk_count_eval,high_risk_rate_eval,param_label
+200,0.06,42,12000,348000,1500,1500,49.937333333333335,95.0,316,0.21066666666666667,n=200 | c=0.06
+150,0.04,42,12000,348000,1500,1500,49.843333333333334,94.0,315,0.21,n=150 | c=0.04
+300,0.06,42,12000,348000,1500,1500,49.718,94.0,309,0.206,n=300 | c=0.06
+300,0.08,42,12000,348000,1500,1500,49.718,94.0,309,0.206,n=300 | c=0.08

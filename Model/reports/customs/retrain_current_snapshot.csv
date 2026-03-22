@@ -1,0 +1,2 @@
+﻿case_count,feature_count,avg_decl_to_release_min,avg_duty_to_release_min,avg_release_to_handover_min,avg_amendment_loop_index,avg_exam_escalation_index,avg_release_gate_index,avg_path_complexity_index
+4286,13,2726.0394,1262.888,850.4516,1.0,0.3286,0.9575,4.0

@@ -1,0 +1,2 @@
+﻿missing_staging_rate,missing_shipped_rate,pick_retouch_rate,pack_retouch_rate,qc_repeat_rate,staging_repeat_rate,large_internal_wait_rate,qc_heavy_case_rate,staging_heavy_case_rate
+0.0,1.0,0.0,0.0,1.0,0.0,1.0,0.05,0.05

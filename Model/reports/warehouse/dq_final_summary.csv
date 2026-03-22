@@ -1,0 +1,2 @@
+﻿process_code,row_count,case_count,unknown_step_count,duplicate_event_rows,negative_duration_count,zero_duration_count,picking_coverage_rate,packing_coverage_rate,qc_coverage_rate,staging_coverage_rate,pick_retouch_rate,pack_retouch_rate,qc_repeat_rate,staging_repeat_rate,large_internal_wait_rate
+WAREHOUSE_FULFILLMENT,276000,12000,0,0,0,0,1.0,1.0,1.0,1.0,0.0,0.0,1.0,0.0,1.0

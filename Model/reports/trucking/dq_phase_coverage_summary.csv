@@ -1,0 +1,2 @@
+﻿case_count,pickup_coverage_rate,load_coverage_rate,linehaul_coverage_rate,last_mile_coverage_rate,delivered_coverage_rate,missing_pickup_or_load_case_rate,missing_linehaul_case_rate,missing_delivery_end_case_rate
+12000,1.0,1.0,1.0,1.0,1.0,0.0,0.0,0.0

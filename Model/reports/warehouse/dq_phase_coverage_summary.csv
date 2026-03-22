@@ -1,0 +1,2 @@
+﻿case_count,receiving_coverage_rate,putaway_coverage_rate,picking_coverage_rate,packing_coverage_rate,qc_coverage_rate,staging_coverage_rate,shipped_coverage_rate,missing_pick_pack_pair_rate,missing_staging_rate,missing_shipped_rate
+12000,0.0,0.0,1.0,1.0,1.0,1.0,0.0,0.0,0.0,1.0

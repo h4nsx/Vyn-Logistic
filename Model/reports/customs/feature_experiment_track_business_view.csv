@@ -1,0 +1,6 @@
+﻿track,business_focus
+CASE_FILE_PATH,Branch path of customs case file from declaration to release
+AMENDMENT_LOOP,Resubmission / amendment / recheck loop intensity
+EXAM_ESCALATION,Inspection / hold escalation and customs waiting pressure
+RELEASE_GATE,Delay at release gate and final clearance completion
+FULL_CLEARANCE_CONTROL,Combined control view of path + loop + exam + release gate + context

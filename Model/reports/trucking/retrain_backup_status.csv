@@ -1,0 +1,7 @@
+﻿artifact,source_exists,copied,backup_path
+model.pkl,True,True,D:\logistics_AI\model\process_models_versioned\TRUCKING_DELIVERY_FLOW__backup__20260314_134841\model.pkl
+scaler.pkl,True,True,D:\logistics_AI\model\process_models_versioned\TRUCKING_DELIVERY_FLOW__backup__20260314_134841\scaler.pkl
+baselines.json,True,True,D:\logistics_AI\model\process_models_versioned\TRUCKING_DELIVERY_FLOW__backup__20260314_134841\baselines.json
+feature_schema.json,True,True,D:\logistics_AI\model\process_models_versioned\TRUCKING_DELIVERY_FLOW__backup__20260314_134841\feature_schema.json
+score_quantiles.json,True,True,D:\logistics_AI\model\process_models_versioned\TRUCKING_DELIVERY_FLOW__backup__20260314_134841\score_quantiles.json
+train_summary.json,True,True,D:\logistics_AI\model\process_models_versioned\TRUCKING_DELIVERY_FLOW__backup__20260314_134841\train_summary.json

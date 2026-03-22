@@ -1,0 +1,2 @@
+﻿process_code,row_count,case_count,unknown_step_count,duplicate_event_rows,negative_duration_count,zero_duration_count,pickup_coverage_rate,linehaul_coverage_rate,delivered_coverage_rate,many_delivery_attempts_rate,many_hub_touches_rate,large_inter_event_gap_rate
+TRUCKING_DELIVERY_FLOW,348000,12000,0,0,0,0,1.0,1.0,1.0,0.0,1.0,1.0

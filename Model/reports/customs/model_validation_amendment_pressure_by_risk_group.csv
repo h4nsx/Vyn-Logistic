@@ -1,0 +1,3 @@
+﻿risk_group,avg_document_intake_touch_count,avg_declaration_touch_count,avg_document_intake_ratio
+anomaly,4.0,1.0,0.18216275181650868
+normal,4.0,1.0,0.18808491919678488

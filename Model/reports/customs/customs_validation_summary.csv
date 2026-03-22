@@ -1,0 +1,2 @@
+process_code,cases_analyzed,cases_ok,avg_risk,p95_risk,high_risk_cases_80plus,high_risk_rate_80plus,avg_top_step_duration_min,avg_top_step_deviation_p95
+IMPORT_CUSTOMS_CLEARANCE,4286,4286,49.500699953336444,94.75,858,0.2001866542230518,409.5148201119925,1.1177377508166122

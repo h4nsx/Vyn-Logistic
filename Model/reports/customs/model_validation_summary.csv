@@ -1,0 +1,2 @@
+﻿process_code,case_count,avg_risk_score,avg_anomaly_score,anomaly_count,anomaly_rate,avg_cycle_time_min,avg_decl_to_release_min,avg_recheck_touch_count,avg_inspection_ratio,avg_hold_ratio,dominant_control_track,dominant_delay_component,avg_operational_issue_count,max_risk_score
+IMPORT_CUSTOMS_CLEARANCE,4286,49.501,0.418604,858,0.2002,2841.944,2726.039,0.0,0.3286,0.0,exam_escalation,inspection,3.1,100

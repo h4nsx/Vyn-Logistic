@@ -1,0 +1,4 @@
+﻿experiment,row_count,feature_count,missing_value_count,missing_rate,score_mean,score_std,score_min,score_p80,score_p95,score_p99,score_max,tail_gap_p99_p95,business_focus
+A_transit_core,12000,13,0,0.0,0.445236,0.059498,0.369972,0.485153,0.567083,0.64879,0.745959,0.081707,Transit core timing + linehaul/depot/last-mile structure
+B_transit_plus_flags,12000,20,0,0.0,0.448401,0.059489,0.375866,0.488032,0.570714,0.654203,0.740429,0.083489,Transit core + failure/attempt/hub-touch issue flags
+C_transit_plus_flags_plus_context,12000,23,0,0.0,0.462241,0.053339,0.380487,0.500043,0.566569,0.638217,0.717797,0.071647,Transit core + issue flags + contextual numeric environment

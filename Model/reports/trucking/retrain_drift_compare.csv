@@ -1,0 +1,9 @@
+﻿metric,train_mean,current_mean,mean_rel_change,train_p95,current_p95,p95_rel_change
+linehaul_ratio,0.348594,0.348594,0.0,0.535597,0.535597,0.0
+hub_depot_ratio,0.277352,0.277352,0.0,0.423986,0.423986,0.0
+last_mile_ratio,0.085323,0.085323,0.0,0.158677,0.158677,0.0
+delivery_attempt_count,2.0,2.0,0.0,2.0,2.0,0.0
+hub_depot_touch_count,8.0,8.0,0.0,8.0,8.0,0.0
+max_gap_to_next_min,0.0,0.0,,0.0,0.0,
+cycle_time_min,848.914192,848.914192,0.0,1279.824167,1279.824167,0.0
+has_return_flow,1.0,1.0,0.0,1.0,1.0,0.0

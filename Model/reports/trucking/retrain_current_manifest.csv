@@ -1,0 +1,2 @@
+﻿process_code,current_model_dir,feature_set,include_context_numeric,n_estimators,contamination,max_samples,max_features,random_state,feature_count,case_count
+TRUCKING_DELIVERY_FLOW,D:\logistics_AI\model\process_models\TRUCKING_DELIVERY_FLOW,B_transit_plus_flags,False,250,0.05,0.8,0.8,42,20,12000
