@@ -19,7 +19,7 @@ services:
         value: https://vyn-logistic-model.onrender.com
 
       - key: CORS_ORIGINS
-        sync: false
+        value: '["https://vyn-logistic-vfbt.onrender.com"]'
 
       - key: JWT_SECRET_KEY
         sync: false
@@ -46,7 +46,7 @@ services:
         value: none
 
       - key: FRONTEND_URL
-        sync: false
+        value: https://vyn-logistic-vfbt.onrender.com
 
       - key: RESEND_API_KEY
         sync: false
