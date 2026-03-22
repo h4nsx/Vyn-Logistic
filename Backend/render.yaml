@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: vyn-logistics-backend
+    name: backend-vyn-logistics
     runtime: python
     rootDir: Backend
     buildCommand: pip install -r requirements.txt
