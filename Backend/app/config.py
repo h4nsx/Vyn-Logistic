@@ -5,7 +5,7 @@ from typing import List
 class Settings(BaseSettings):
     MONGODB_URL: str = "mongodb://localhost:27017"
     MONGODB_DB_NAME: str = "vyn_logistics"
-    AI_MODEL_URL: str = "https://vyn-logistic-1.onrender.com"
+    AI_MODEL_URL: str = "https://vyn-logistic-model.onrender.com"
     PORT: int = 8000
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
     JWT_SECRET_KEY: str = "change-this-secret-in-production"

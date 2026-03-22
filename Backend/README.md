@@ -6,7 +6,7 @@ Real-time logistics analytics backend with AI-powered bottleneck detection.
 - **FastAPI** — Web framework
 - **MongoDB (Motor)** — Async database
 - **httpx** — Async HTTP client to call AI model
-- **AI Model** — `https://logistics-ai-api.onrender.com`
+- **AI Model** — `https://vyn-logistic-model.onrender.com`
 
 ## Setup
 

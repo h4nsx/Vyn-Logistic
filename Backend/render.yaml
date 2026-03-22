@@ -16,7 +16,7 @@ services:
         value: vyn_logistics
 
       - key: AI_MODEL_URL
-        value: https://vyn-logistic-1.onrender.com
+        value: https://vyn-logistic-model.onrender.com
 
       - key: CORS_ORIGINS
         sync: false
