@@ -30,26 +30,39 @@ export const AnalysisProcessing = ({ onFinished }: { onFinished: () => void }) =
         setActiveStepIndex(current);
       }, 2000);
 
+      let success = false;
+
       try {
         if (activeFile && mappingData) {
           const response = await datasetService.analyzeCsv(activeFile, mappingData);
           setAnalysisResult(response); // Store the entire ML JSON response
-          if (response && (response.id || response.dataset_id || response.upload_id)) {
-            setCurrentDataset(response.id || response.dataset_id || response.upload_id);
+          if (response && (response.analysis_id || response.id || response.dataset_id || response.upload_id)) {
+            setCurrentDataset(response.analysis_id || response.id || response.dataset_id || response.upload_id);
           } else {
             setCurrentDataset('latest'); // Used as fallback ID routing
           }
+          success = true;
         }
       } catch (error: any) {
         console.error("AI Analysis encountered an error:", error);
+        setCurrentDataset('error'); // Block navigation to pending-mapping
         if (error.response && error.response.data) {
           console.error("Backend Error Details:", JSON.stringify(error.response.data, null, 2));
+          alert(`Analysis Failed: ${error.response.data.detail?.message || error.response.data.message || 'Validation error'}`);
+        } else {
+          alert('Analysis Engine Failed. Check console logs.');
         }
       } finally {
         // Finalize state
         clearInterval(simulationInterval);
         setActiveStepIndex(steps.length); // Jump to fully completed state
-        setTimeout(onFinished, 1500); // Give user time to see full completion before switching screen
+        if (success) {
+          setTimeout(onFinished, 1500); // Give user time to see full completion before switching screen
+        } else {
+          // Reset so user can view errors and try mapping again
+          setActiveStepIndex(0);
+          hasStartedAnalysis.current = false;
+        }
       }
     };
 
