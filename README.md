@@ -167,10 +167,10 @@ User uploads dataset (CSV / Excel / Google Sheets)
 
 | Name | Role | Responsibilities |
 |------|------|------------------|
-| Your Name | Fullstack Developer | System architecture, backend development, frontend implementation |
-| Member 2 | AI Engineer | Model development, data processing, feature engineering |
-| Member 3 | Frontend Developer | UI/UX design, dashboard implementation |
-| Member 4 | Backend Developer | API development, database design, integration |
+| Võ Tuấn Hùng | Team Leader | System architecture, Debug Issue , Fullstack implementation |
+| Trần QUốc Huy | AI Engineer | Model development, data processing, feature engineering |
+| Nguyễn Văn Linh | Frontend Developer | UI/UX design, dashboard implementation |
+| Nguyễn Tăng Minh Thông | Backend Developer | API development, database design, integration |
 
 ---
 
