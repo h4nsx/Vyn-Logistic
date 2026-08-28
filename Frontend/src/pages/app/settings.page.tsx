@@ -118,58 +118,65 @@ export function SettingsPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit(onPasswordSubmit)} className="p-6 space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <Input
-              id="currentPassword"
-              label="Current Password"
-              type="password"
-              placeholder="••••••••"
-              error={errors.currentPassword?.message}
-              {...register('currentPassword')}
-            />
-            <Input
-              id="newPassword"
-              label="New Password"
-              type="password"
-              placeholder="Min. 8 characters"
-              hint="Use letters, numbers & symbols."
-              error={errors.newPassword?.message}
-              {...register('newPassword')}
-            />
-            <Input
-              id="confirmPassword"
-              label="Confirm New Password"
-              type="password"
-              placeholder="Repeat new password"
-              error={errors.confirmPassword?.message}
-              {...register('confirmPassword')}
-            />
+        <form onSubmit={handleSubmit(onPasswordSubmit)}>
+          <div className="p-6">
+            <div className="max-w-md space-y-5">
+              <Input
+                id="currentPassword"
+                label="Current Password"
+                type="password"
+                placeholder="••••••••"
+                error={errors.currentPassword?.message}
+                {...register('currentPassword')}
+              />
+              
+              <div className="pt-2">
+                <div className="h-px w-full bg-border mb-6" />
+              </div>
+
+              <Input
+                id="newPassword"
+                label="New Password"
+                type="password"
+                placeholder="Min. 8 characters"
+                hint="Use letters, numbers & symbols."
+                error={errors.newPassword?.message}
+                {...register('newPassword')}
+              />
+              <Input
+                id="confirmPassword"
+                label="Confirm New Password"
+                type="password"
+                placeholder="Repeat new password"
+                error={errors.confirmPassword?.message}
+                {...register('confirmPassword')}
+              />
+
+              {errors.root && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="flex items-center gap-2 p-4 rounded-xl bg-danger-50 border border-danger/20 text-danger text-sm mt-4"
+                >
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  {errors.root.message}
+                </motion.div>
+              )}
+
+              {passwordMutation.isSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="flex items-center gap-2 p-4 rounded-xl bg-success-50 border border-success/20 text-success text-sm mt-4"
+                >
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  Password updated successfully!
+                </motion.div>
+              )}
+            </div>
           </div>
-
-          {errors.root && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="flex items-center gap-2 p-4 rounded-xl bg-danger-50 border border-danger/20 text-danger text-sm"
-            >
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {errors.root.message}
-            </motion.div>
-          )}
-
-          {passwordMutation.isSuccess && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="flex items-center gap-2 p-4 rounded-xl bg-success-50 border border-success/20 text-success text-sm"
-            >
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              Password updated successfully!
-            </motion.div>
-          )}
-
-          <div className="flex justify-end">
+          
+          <div className="px-6 py-4 bg-surface/50 border-t border-border flex justify-end">
             <Button
               type="submit"
               isLoading={passwordMutation.isPending}

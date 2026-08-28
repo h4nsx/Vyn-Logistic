@@ -58,7 +58,7 @@ export function LoginPage() {
           id="email"
           type="email"
           label="Email Address"
-          placeholder="you@company.com"
+          placeholder="your-email@company.com"
           icon={<Mail className="w-4 h-4" />}
           error={errors.email?.message}
           {...register('email')}

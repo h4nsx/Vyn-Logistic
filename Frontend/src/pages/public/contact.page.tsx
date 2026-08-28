@@ -27,7 +27,7 @@ export function ContactPage() {
                   <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange flex items-center justify-center shrink-0 border border-orange/10"><MapPin className="w-6 h-6" /></div>
                   <div>
                     <h4 className="text-lg font-black text-navy mb-1 tracking-tight">Ho Chi Minh City, Vietnam</h4>
-                    <p className="text-content-secondary text-sm leading-relaxed">District 1, Ho Chi Minh City, Vietnam <br /> (Built while during Lotus Hackathon 2026)</p>
+                    <p className="text-content-secondary text-sm leading-relaxed">Thu Duc, Ho Chi Minh City, Vietnam <br /></p>
                   </div>
                 </div>
                 <div className="flex gap-6 items-start">
@@ -45,8 +45,8 @@ export function ContactPage() {
               <h3 className="text-2xl font-black mb-6">Need Immediate Support?</h3>
               <p className="text-white/60 mb-8 leading-relaxed italic">Our specialist AI architects are ready for direct calls if you are an enterprise tier user.</p>
               <div className="space-y-4">
-                <a href="mailto:hello@vyn.ai" className="flex items-center gap-4 text-orange font-black hover:translate-x-1 transition-transform group/link">
-                  <Mail className="w-5 h-5" /> hello@vyn.ai <ArrowRight className="w-4 h-4 opacity-0 group-hover/link:opacity-100 transition-opacity" />
+                <a href="mailto:votuanhung1205.work@gmail.com" className="flex items-center gap-4 text-orange font-black hover:translate-x-1 transition-transform group/link">
+                  <Mail className="w-5 h-5" /> votuanhung1205.work@gmail.com <ArrowRight className="w-4 h-4 opacity-0 group-hover/link:opacity-100 transition-opacity" />
                 </a>
               </div>
             </div>

@@ -19,8 +19,8 @@ export const authService = {
 
   changePassword: async (passwords: PasswordInput) => {
     const { data } = await apiClient.post('/auth/change-password', {
-      oldPassword: passwords.currentPassword,
-      newPassword: passwords.newPassword,
+      current_password: passwords.currentPassword,
+      new_password: passwords.newPassword,
     });
     showToast('Password changed successfully', 'success');
     return data;

@@ -178,7 +178,7 @@ export function AboutPage() {
                 role: 'Team Leader', 
                 bio: 'Focus on building intelligent systems that solve real-world problems.', 
                 color: 'from-orange to-orange-dark',
-                image: '../../../public/team/4.png',
+                image: 'team/4.png',
                 email: 'votuanhung1205.work@gmail.com',
                 github: 'https://github.com/h4nsx'
               },
@@ -187,7 +187,7 @@ export function AboutPage() {
                 role: 'Backend Engineer', 
                 bio: 'Focus on building robust backend systems and data pipelines.', 
                 color: 'from-navy to-navy-dark',
-                image: '../../../public/team/1.jpg',
+                image: 'team/1.jpg',
                 email: 'Thongntmse171742@fpt.edu.vn',
                 github: 'https://github.com/thongntms171742'
               },
@@ -196,7 +196,7 @@ export function AboutPage() {
                 role: 'AI Engineer', 
                 bio: 'Focus on building intelligent systems that solve real-world problems.', 
                 color: 'from-cyan to-cyan-dark',
-                image: '../../../public/team/3.jpg',
+                image: 'team/3.jpeg',
                 email: 'Paper250805@gmail.com',
                 github: 'https://github.com/quwyimn'
               },
@@ -205,7 +205,7 @@ export function AboutPage() {
                 role: 'Frontend & Documentation', 
                 bio: 'Focus on building user-friendly interfaces and clear documentation.', 
                 color: 'from-success to-success-dark',
-                image: '../../../public/team/2.jpeg',
+                image: 'team/2.jpeg',
                 email: 'nglinhvan189@gmail.com',
                 github: 'https://github.com/mazino189'
               },

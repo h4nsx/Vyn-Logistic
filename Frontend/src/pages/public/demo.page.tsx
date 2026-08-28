@@ -243,10 +243,10 @@ export function DemoPage() {
   const reset = () => { setPhase('select'); setProgress(0); setActiveStep(0); setData([]); };
 
   return (
-    <div className="pt-20 min-h-screen bg-slate-50 flex flex-col font-outfit overflow-hidden">
+    <div className="pt-[76px] min-h-screen bg-slate-50 flex flex-col font-outfit overflow-hidden">
       
       {/* 🧩 Header Progress 🧩 */}
-      <div className="bg-white border-b border-border py-4 sticky top-20 z-40 shadow-sm">
+      <div className="bg-white border-b border-border py-4 sticky top-[60px] z-40 shadow-sm">
          <div className="container mx-auto px-6 flex justify-between items-center">
             <div className="flex items-center gap-2">
                <Zap className="w-5 h-5 text-orange animate-pulse" />

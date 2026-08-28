@@ -1,9 +1,12 @@
 import logging
+import uuid
+from datetime import datetime, timezone
 
 import httpx
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, UploadFile, Query
 
 from app.config import settings
+from app.database import get_db
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -66,4 +69,53 @@ async def validate_integrated_csv(file: UploadFile = File(...)):
     summary="Analyze integrated CSV by forwarding file to the model API",
 )
 async def analyze_integrated_csv(file: UploadFile = File(...)):
-    return await _forward_integrated_csv("/analyze/integrated_csv", file)
+    filename = file.filename or "integrated.csv"
+    
+    # 1. Forward to Model API
+    model_result = await _forward_integrated_csv("/analyze/integrated_csv", file)
+    
+    # 2. Save to database
+    analysis_id = str(uuid.uuid4())
+    db = get_db()
+    
+    doc = {
+        "analysis_id": analysis_id,
+        "filename": filename,
+        "result": model_result,
+        "analyzed_at": datetime.now(timezone.utc),
+    }
+    
+    try:
+        await db.integrated_analyses.insert_one(doc.copy())
+    except Exception as e:
+        logger.error(f"Failed to save integrated analysis {analysis_id} to DB: {e}")
+    
+    # Return the document, excluding the MongoDB '_id' which is not serializable
+    doc.pop("_id", None)
+    return doc
+
+
+@router.get(
+    "/integrated_analyses",
+    summary="Get history of integrated analyses",
+)
+async def get_integrated_analyses(limit: int = Query(50, ge=1, le=100)):
+    db = get_db()
+    cursor = db.integrated_analyses.find({}, {"_id": 0, "result": 0}).sort("analyzed_at", -1).limit(limit)
+    analyses = await cursor.to_list(length=limit)
+    total = await db.integrated_analyses.count_documents({})
+    
+    return {"analyses": analyses, "total_count": total}
+
+
+@router.get(
+    "/integrated_analyses/{analysis_id}",
+    summary="Get details of a specific integrated analysis",
+)
+async def get_integrated_analysis_by_id(analysis_id: str):
+    db = get_db()
+    analysis = await db.integrated_analyses.find_one({"analysis_id": analysis_id}, {"_id": 0})
+    if not analysis:
+        raise HTTPException(status_code=404, detail=f"Analysis '{analysis_id}' not found")
+        
+    return analysis

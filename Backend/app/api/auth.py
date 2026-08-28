@@ -295,8 +295,12 @@ async def refresh_token(request: Request, response: Response):
     if not record:
         raise HTTPException(status_code=401, detail="Refresh token revoked or invalid")
 
-    if record.get("expires_at") and record["expires_at"] < _now():
-        raise HTTPException(status_code=401, detail="Refresh token expired")
+    if record.get("expires_at"):
+        exp_dt = record["expires_at"]
+        if exp_dt.tzinfo is None:
+            exp_dt = exp_dt.replace(tzinfo=timezone.utc)
+        if exp_dt < _now():
+            raise HTTPException(status_code=401, detail="Refresh token expired")
 
     user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
     if not user:
@@ -418,8 +422,12 @@ async def reset_password(body: ResetPasswordRequest, response: Response):
     if not record:
         raise HTTPException(status_code=400, detail="Invalid or expired reset token")
 
-    if record.get("expires_at") and record["expires_at"] < _now():
-        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    if record.get("expires_at"):
+        exp_dt = record["expires_at"]
+        if exp_dt.tzinfo is None:
+            exp_dt = exp_dt.replace(tzinfo=timezone.utc)
+        if exp_dt < _now():
+            raise HTTPException(status_code=400, detail="Invalid or expired reset token")
 
     user_id = record["user_id"]
     now = _now()
