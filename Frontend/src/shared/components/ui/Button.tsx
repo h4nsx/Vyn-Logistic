@@ -5,7 +5,7 @@ import { useAuthStore } from '../../../features/auth/store';
 import { cn } from '../../utils/cn';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'navy';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'navy' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   href?: string;
   icon?: boolean | React.ReactNode;
@@ -37,6 +37,7 @@ const Button: React.FC<ButtonProps> = ({
     navy: 'bg-navy hover:bg-navy-dark text-white shadow-lg hover:shadow-xl shadow-navy/20',
     outline: 'border-2 border-border hover:border-navy/30 text-navy hover:bg-navy-50/50',
     ghost: 'bg-transparent text-content-secondary hover:text-navy hover:bg-surface active:scale-100',
+    danger: 'bg-danger hover:bg-danger-dark text-white shadow-lg hover:shadow-xl hover:shadow-danger/20',
   };
 
   const sizes = {
