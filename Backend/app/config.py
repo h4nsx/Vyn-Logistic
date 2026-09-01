@@ -28,6 +28,15 @@ class Settings(BaseSettings):
     REFRESH_COOKIE_NAME: str = "refresh_token"
     COOKIE_SECURE: bool = False
     COOKIE_SAMESITE: str = "lax"
+
+    @field_validator("COOKIE_SAMESITE", mode="before")
+    @classmethod
+    def validate_samesite(cls, v: str) -> str:
+        v = str(v).lower()
+        if v not in ["strict", "lax", "none"]:
+            return "none" if "none" in v else "lax"
+        return v
+
     FRONTEND_URL: str = "http://localhost:3000"
     RESEND_API_KEY: str = ""
     RESEND_FROM_EMAIL: str = "onboarding@resend.dev"
