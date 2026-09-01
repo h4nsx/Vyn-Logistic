@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Search, HelpCircle, User, Settings, Info, Briefcase, Zap, ArrowRight, MessageCircle, Mail, Phone, FileText } from 'lucide-react';
+import { Search, HelpCircle, User, Settings, Info, Briefcase, Zap, ArrowRight, MessageCircle, Phone } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/Button';
 
 export function HelpCenterPage() {

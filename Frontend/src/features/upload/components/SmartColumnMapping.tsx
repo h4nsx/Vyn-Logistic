@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, CheckCircle2, ShieldCheck, CornerRightDown } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, CornerRightDown } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
 import { useDatasetStore } from '../../../features/datasets/store';

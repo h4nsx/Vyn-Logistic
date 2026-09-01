@@ -1,4 +1,4 @@
-import { FileText, CheckCircle, Scale } from 'lucide-react';
+import { Scale } from 'lucide-react';
 
 export function TermsOfServicePage() {
   return (

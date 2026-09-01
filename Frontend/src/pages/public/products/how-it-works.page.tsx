@@ -10,11 +10,6 @@ const fadeUp: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } },
 };
 
-const staggerContainer: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.15 } },
-};
-
 // ─── Step Card ───────────────────────────────────────────────────────────────
 function StepItem({ icon: Icon, step, title, body, index }: { icon: any, step: string, title: string, body: string, index: number }) {
   const ref = useRef(null);

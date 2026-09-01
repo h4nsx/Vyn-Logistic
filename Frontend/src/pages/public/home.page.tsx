@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { motion, useInView, useMotionValue, useTransform, type Variants } from 'framer-motion';
 import { Button } from '../../shared/components/ui/Button';
+import { ReportGallery } from '../../features/model-performance/components/ReportGallery';
+
 
 // ─── Animation variants ──────────────────────────────────────────────────────
 const fadeUp: Variants = {
@@ -446,6 +448,9 @@ export function HomePage() {
           </RevealSection>
         </div>
       </section>
+
+      {/* ── AI TRANSPARENCY & TRUST ── */}
+      <ReportGallery />
 
       {/* ── CTA BANNER ── */}
       <section className="py-24">
