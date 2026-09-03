@@ -3,7 +3,8 @@ import uuid
 from datetime import datetime, timezone
 
 import httpx
-from fastapi import APIRouter, File, HTTPException, UploadFile, Query
+from fastapi import APIRouter, File, HTTPException, UploadFile, Query, Depends
+from app.api.auth import get_current_user
 
 from app.config import settings
 from app.database import get_db
@@ -60,7 +61,7 @@ async def _forward_integrated_csv(endpoint: str, file: UploadFile):
     "/validate/integrated_csv",
     summary="Validate integrated CSV by forwarding file to the model API",
 )
-async def validate_integrated_csv(file: UploadFile = File(...)):
+async def validate_integrated_csv(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
     return await _forward_integrated_csv("/validate/integrated_csv", file)
 
 
@@ -68,7 +69,7 @@ async def validate_integrated_csv(file: UploadFile = File(...)):
     "/analyze/integrated_csv",
     summary="Analyze integrated CSV by forwarding file to the model API",
 )
-async def analyze_integrated_csv(file: UploadFile = File(...)):
+async def analyze_integrated_csv(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
     filename = file.filename or "integrated.csv"
     
     # 1. Forward to Model API
@@ -81,6 +82,7 @@ async def analyze_integrated_csv(file: UploadFile = File(...)):
     doc = {
         "analysis_id": analysis_id,
         "filename": filename,
+        "user_id": current_user["user_id"],
         "result": model_result,
         "analyzed_at": datetime.now(timezone.utc),
     }
@@ -99,11 +101,11 @@ async def analyze_integrated_csv(file: UploadFile = File(...)):
     "/integrated_analyses",
     summary="Get history of integrated analyses",
 )
-async def get_integrated_analyses(limit: int = Query(50, ge=1, le=100)):
+async def get_integrated_analyses(limit: int = Query(50, ge=1, le=100), current_user: dict = Depends(get_current_user)):
     db = get_db()
-    cursor = db.integrated_analyses.find({}, {"_id": 0, "result": 0}).sort("analyzed_at", -1).limit(limit)
+    cursor = db.integrated_analyses.find({"user_id": current_user["user_id"]}, {"_id": 0, "result": 0}).sort("analyzed_at", -1).limit(limit)
     analyses = await cursor.to_list(length=limit)
-    total = await db.integrated_analyses.count_documents({})
+    total = await db.integrated_analyses.count_documents({"user_id": current_user["user_id"]})
     
     return {"analyses": analyses, "total_count": total}
 
@@ -112,9 +114,9 @@ async def get_integrated_analyses(limit: int = Query(50, ge=1, le=100)):
     "/integrated_analyses/{analysis_id}",
     summary="Get details of a specific integrated analysis",
 )
-async def get_integrated_analysis_by_id(analysis_id: str):
+async def get_integrated_analysis_by_id(analysis_id: str, current_user: dict = Depends(get_current_user)):
     db = get_db()
-    analysis = await db.integrated_analyses.find_one({"analysis_id": analysis_id}, {"_id": 0})
+    analysis = await db.integrated_analyses.find_one({"analysis_id": analysis_id, "user_id": current_user["user_id"]}, {"_id": 0})
     if not analysis:
         raise HTTPException(status_code=404, detail=f"Analysis '{analysis_id}' not found")
         

@@ -12,6 +12,7 @@ import { Badge } from '../../shared/components/ui/Badge';
 import { passwordSchema, type PasswordInput } from '../../features/auth/types';
 import { authService } from '../../features/auth/api/auth.service';
 import { useToastStore } from '../../shared/store/toastStore';
+import { useNavigate } from 'react-router-dom';
 
 const containerVariants: Variants = {
   hidden: {},
@@ -24,8 +25,9 @@ const sectionVariants: Variants = {
 };
 
 export function SettingsPage() {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const { addToast } = useToastStore();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -42,7 +44,7 @@ export function SettingsPage() {
       addToast('Password updated successfully!', 'success');
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || 'Failed to update password';
+      const message = error.response?.data?.detail || error.response?.data?.message || 'Failed to update password';
       setError('root', { message });
       addToast(message, 'error');
     },
@@ -52,8 +54,37 @@ export function SettingsPage() {
     passwordMutation.mutate(data);
   };
 
-  const [emailAlerts, setEmailAlerts] = useState(true);
-  const [systemAlerts, setSystemAlerts] = useState(false);
+  const deleteMutation = useMutation({
+    mutationFn: authService.deleteAccount,
+    onSuccess: () => {
+      logout();
+      navigate('/');
+    },
+    onError: (error: any) => {
+      addToast(error.response?.data?.detail || 'Failed to delete account', 'error');
+    },
+  });
+
+  const handleDeleteAccount = () => {
+    if (window.confirm('Are you absolutely sure you want to permanently delete your account and all its data? This cannot be undone.')) {
+      deleteMutation.mutate();
+    }
+  };
+
+  const [emailAlerts, setEmailAlerts] = useState(() => localStorage.getItem('emailAlerts') !== 'false');
+  const [systemAlerts, setSystemAlerts] = useState(() => localStorage.getItem('systemAlerts') === 'true');
+
+  const handleEmailToggle = () => {
+    const next = !emailAlerts;
+    setEmailAlerts(next);
+    localStorage.setItem('emailAlerts', String(next));
+  };
+
+  const handleSystemToggle = () => {
+    const next = !systemAlerts;
+    setSystemAlerts(next);
+    localStorage.setItem('systemAlerts', String(next));
+  };
 
   return (
     <motion.div
@@ -201,8 +232,8 @@ export function SettingsPage() {
         </div>
         <div className="divide-y divide-border">
           {[
-            { label: 'Email Alerts', desc: 'Daily digest of anomalies and risk scores', state: emailAlerts, setter: setEmailAlerts },
-            { label: 'System Notifications', desc: 'In-app alerts for critical bottlenecks', state: systemAlerts, setter: setSystemAlerts },
+            { label: 'Email Alerts', desc: 'Daily digest of anomalies and risk scores', state: emailAlerts, setter: handleEmailToggle },
+            { label: 'System Notifications', desc: 'In-app alerts for critical bottlenecks', state: systemAlerts, setter: handleSystemToggle },
           ].map(item => (
             <div key={item.label} className="flex items-center justify-between px-6 py-5">
               <div>
@@ -210,7 +241,7 @@ export function SettingsPage() {
                 <p className="text-xs text-content-secondary mt-0.5">{item.desc}</p>
               </div>
               <button
-                onClick={() => item.setter(!item.state)}
+                onClick={item.setter}
                 className={`relative w-11 h-6 rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange ${
                   item.state ? 'bg-orange' : 'bg-border'
                 }`}
@@ -240,7 +271,7 @@ export function SettingsPage() {
             <p className="text-sm font-semibold text-navy">Delete Account</p>
             <p className="text-xs text-content-secondary mt-0.5">Permanently remove your account and all data.</p>
           </div>
-          <Button variant="danger" size="sm" icon={<ChevronRight className="w-4 h-4" />}>
+          <Button variant="danger" size="sm" icon={<ChevronRight className="w-4 h-4" />} onClick={handleDeleteAccount} isLoading={deleteMutation.isPending}>
             Delete Account
           </Button>
         </div>

@@ -15,17 +15,22 @@ export function PrivacyPolicyPage() {
         <div className="prose prose-navy max-w-none space-y-8 text-content-secondary leading-relaxed font-medium">
           <section>
             <h2 className="text-2xl font-black text-navy mb-4">1. Data Collection</h2>
-            <p>At Vyn, we prioritize the security and privacy of your supply chain data. We collect information solely for the purpose of provide process analysis and intelligence insights.</p>
+            <p>At Vyn Logistics, we prioritize the security and privacy of your supply chain data. We collect information solely for the purpose of providing process analysis and intelligence insights. This includes account information, usage data, and the logistics datasets you choose to upload.</p>
           </section>
           
           <section>
             <h2 className="text-2xl font-black text-navy mb-4">2. Processing & Storage</h2>
-            <p>Your logistics logs are processed via our neural mapping engine and stored using enterprise-grade encryption. We do not share your data with third parties for marketing purposes.</p>
+            <p>Your logistics logs are processed via our neural mapping engine and stored using enterprise-grade encryption. We do not share your data with third parties for marketing purposes. Your uploaded datasets are strictly isolated and are only accessible by you or authorized members of your organization.</p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-black text-navy mb-4">3. Your Rights</h2>
-            <p>You have the right to export, modify, or delete your processed datasets at any time through the dashboard settings.</p>
+            <h2 className="text-2xl font-black text-navy mb-4">3. Data Security and Isolation</h2>
+            <p>We implement robust tenant isolation in our database architecture. Your data is mathematically isolated using unique identifiers to guarantee that no other user can access your uploads or analyses. All data is transmitted securely over TLS/SSL.</p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-black text-navy mb-4">4. Your Rights</h2>
+            <p>You have the right to access, export, modify, or permanently delete your processed datasets and account at any time through the dashboard settings. Deleting your account will instantly remove all associated data from our servers.</p>
           </section>
         </div>
       </div>

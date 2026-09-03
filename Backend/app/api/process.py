@@ -1,8 +1,9 @@
 import logging
 from typing import Any, Optional
 
-from fastapi import APIRouter, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, File, HTTPException, Query, UploadFile, Depends
 from pydantic import BaseModel
+from app.api.auth import get_current_user
 
 from app.config import PROCESS_ALIASES, SUPPORTED_PROCESSES
 from app.database import get_db
@@ -15,9 +16,9 @@ logger = logging.getLogger(__name__)
 # ── GET /api/process/{case_id} ─────────────────────────────────────────────────
 
 @router.get("/process/{case_id}", summary="Get AI analysis result for a specific case")
-async def get_process(case_id: str):
+async def get_process(case_id: str, current_user: dict = Depends(get_current_user)):
     db = get_db()
-    doc = await db.case_results.find_one({"case_id": case_id}, {"_id": 0})
+    doc = await db.case_results.find_one({"case_id": case_id, "user_id": current_user["user_id"]}, {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
@@ -46,7 +47,7 @@ class AnalyzeCaseRequest(BaseModel):
 
 
 @router.post("/process/analyze", summary="Analyze a single case via JSON events")
-async def analyze_single_case(body: AnalyzeCaseRequest):
+async def analyze_single_case(body: AnalyzeCaseRequest, current_user: dict = Depends(get_current_user)):
     normalized_code = PROCESS_ALIASES.get(
         body.process_code.upper(), body.process_code.upper()
     )
@@ -80,6 +81,7 @@ async def analyze_single_case_file(
     file: UploadFile = File(...),
     process_code: str = Query(...),
     case_id: Optional[str] = Query(None),
+    current_user: dict = Depends(get_current_user),
 ):
     normalized_code = PROCESS_ALIASES.get(process_code.upper(), process_code.upper())
     if normalized_code not in SUPPORTED_PROCESSES:

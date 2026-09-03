@@ -4,7 +4,8 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, File, HTTPException, Query, UploadFile, Depends
+from app.api.auth import get_current_user
 
 from app.config import (
     PROCESS_ALIASES,
@@ -29,7 +30,9 @@ async def upload_csv(
         description="Process type: TRUCKING_DELIVERY_FLOW | WAREHOUSE_FULFILLMENT | IMPORT_CUSTOMS_CLEARANCE",
     ),
     max_cases: Optional[int] = Query(None, description="Limit number of cases to analyze"),
+    current_user: dict = Depends(get_current_user),
 ):
+    user_id = current_user["user_id"]
     # ── Validate file type ────────────────────────────────────────────────────
     if not file.filename.lower().endswith(".csv"):
         raise HTTPException(status_code=400, detail="Only CSV files are accepted")
@@ -69,6 +72,7 @@ async def upload_csv(
         await db.uploads.insert_one(
             {
                 "upload_id": upload_id,
+                "user_id": user_id,
                 "filename": file.filename,
                 "process_code": normalized_code,
                 "status": "error",
@@ -105,6 +109,7 @@ async def upload_csv(
             docs.append(
                 {
                     "upload_id": upload_id,
+                    "user_id": user_id,
                     "process_code": normalized_code,
                     "case_id": str(case_id),
                     "result": case,
@@ -120,6 +125,7 @@ async def upload_csv(
     await db.uploads.insert_one(
         {
             "upload_id": upload_id,
+            "user_id": user_id,
             "filename": file.filename,
             "process_code": normalized_code,
             "status": "success",

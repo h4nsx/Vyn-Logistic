@@ -5,6 +5,7 @@ import jwt
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from app.main import limiter
 from app.config import settings
 from app.database import get_db
 from app.models.auth_schemas import (
@@ -126,6 +127,7 @@ async def get_current_user(
 
 
 @router.post("/auth/signup", response_model=AuthResponse, summary="Sign up with email/password")
+@limiter.limit("5/minute")
 async def signup(body: SignUpRequest, response: Response, request: Request):
     db = get_db()
     email = str(body.email).lower()
@@ -158,6 +160,7 @@ async def signup(body: SignUpRequest, response: Response, request: Request):
 
 
 @router.post("/auth/signin", response_model=AuthResponse, summary="Sign in with email/password")
+@limiter.limit("10/minute")
 async def signin(body: SignInRequest, response: Response, request: Request):
     db = get_db()
     email = str(body.email).lower()
@@ -334,6 +337,26 @@ async def refresh_token(request: Request, response: Response):
     )
 
 
+@router.delete("/me", summary="Delete the current user account")
+async def delete_account(current_user: dict = Depends(get_current_user)):
+    db = get_db()
+    
+    # Delete the user document
+    result = await db.users.delete_one({"user_id": current_user["user_id"]})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    # Also delete all associated uploads and case results to maintain tenant isolation/data hygiene
+    user_id = current_user["user_id"]
+    await db.uploads.delete_many({"user_id": user_id})
+    await db.case_results.delete_many({"user_id": user_id})
+    
+    # Normally we would also invalidate the refresh token, but since the user is deleted, 
+    # the frontend deleting its cookies is sufficient.
+    
+    return {"status": "success", "message": "Account deleted permanently"}
+
+
 @router.post("/auth/logout", summary="Logout current session")
 async def logout(request: Request, response: Response):
     db = get_db()
@@ -385,7 +408,8 @@ async def change_password(
 
 
 @router.post("/auth/forgot-password", summary="Send password reset link")
-async def forgot_password(body: ForgotPasswordRequest):
+@limiter.limit("3/minute")
+async def forgot_password(body: ForgotPasswordRequest, request: Request):
     db = get_db()
     email = str(body.email).lower()
     user = await db.users.find_one({"email": email}, {"_id": 0})

@@ -60,9 +60,7 @@ export const Footer = () => {
           <div className="lg:col-span-2 flex flex-col gap-6">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2.5 w-fit group">
-              <div className="bg-gradient-to-br from-orange to-orange-dark text-white p-1.5 rounded-xl shadow-md shadow-orange/30 group-hover:shadow-orange/50 transition-shadow">
-                <Zap className="w-5 h-5" />
-              </div>
+              <img src="/favicon.webp" alt="Vyn Logo" className="w-8 h-8 rounded-xl object-cover" />
               <div>
                 <span className="font-black text-xl tracking-tight text-white block leading-none">Vyn</span>
                 <span className="text-[10px] text-white/30 font-medium uppercase tracking-widest">Supply Chain Intelligence</span>

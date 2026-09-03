@@ -1,7 +1,8 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
+from app.api.auth import get_current_user
 
 from app.database import get_db
 
@@ -15,10 +16,11 @@ async def get_results(
     upload_id: Optional[str] = Query(None, description="Filter by upload batch"),
     is_anomaly: Optional[bool] = Query(None, description="Filter anomalies only"),
     limit: int = Query(100, ge=1, le=1000),
+    current_user: dict = Depends(get_current_user),
 ):
     db = get_db()
 
-    query: dict = {}
+    query: dict = {"user_id": current_user["user_id"]}
     if process_code:
         query["process_code"] = process_code.upper()
     if upload_id:
@@ -41,10 +43,11 @@ async def get_results(
 async def get_uploads(
     process_code: Optional[str] = Query(None),
     limit: int = Query(20, ge=1, le=100),
+    current_user: dict = Depends(get_current_user),
 ):
     db = get_db()
 
-    query: dict = {}
+    query: dict = {"user_id": current_user["user_id"]}
     if process_code:
         query["process_code"] = process_code.upper()
 
@@ -56,16 +59,16 @@ async def get_uploads(
 
 
 @router.get("/uploads/{upload_id}", summary="Get details of a specific upload batch")
-async def get_upload_detail(upload_id: str):
+async def get_upload_detail(upload_id: str, current_user: dict = Depends(get_current_user)):
     from fastapi import HTTPException
 
     db = get_db()
-    upload = await db.uploads.find_one({"upload_id": upload_id}, {"_id": 0})
+    upload = await db.uploads.find_one({"upload_id": upload_id, "user_id": current_user["user_id"]}, {"_id": 0})
     if not upload:
         raise HTTPException(status_code=404, detail=f"Upload '{upload_id}' not found")
 
     cases = await db.case_results.find(
-        {"upload_id": upload_id}, {"_id": 0, "result": 0}
+        {"upload_id": upload_id, "user_id": current_user["user_id"]}, {"_id": 0, "result": 0}
     ).to_list(length=None)
 
     return {

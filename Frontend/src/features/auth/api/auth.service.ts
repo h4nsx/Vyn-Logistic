@@ -2,18 +2,25 @@ import { apiClient } from '../../../shared/lib/axios';
 import type { LoginCredentials, RegisterCredentials, AuthResponse, PasswordInput, ForgotPasswordInput, ResetPasswordInput } from '../types';
 import { showToast } from '../../../shared/store/toastStore';
 
+const mapBackendUser = (backendUser: any) => ({
+  name: backendUser.email.split('@')[0],
+  email: backendUser.email,
+  initials: backendUser.email[0].toUpperCase(),
+  role: backendUser.role || 'user',
+});
+
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    // Maps to POST /api/auth/signin
     const { data } = await apiClient.post<AuthResponse>('/auth/signin', credentials);
     showToast('Login successful', 'success');
+    data.user = mapBackendUser(data.user) as any;
     return data;
   },
 
   register: async (credentials: RegisterCredentials): Promise<AuthResponse> => {
-    // Maps to POST /api/auth/signup
     const { confirmPassword, ...signupData } = credentials;
     const { data } = await apiClient.post<AuthResponse>('/auth/signup', signupData);
+    data.user = mapBackendUser(data.user) as any;
     return data;
   },
 
@@ -29,6 +36,11 @@ export const authService = {
   logout: async () => {
     await apiClient.post('/auth/logout');
     showToast('Logout successful', 'success');
+  },
+
+  deleteAccount: async () => {
+    await apiClient.delete('/auth/me');
+    showToast('Account deleted permanently', 'success');
   },
 
   /**
@@ -55,11 +67,13 @@ export const authService = {
 
   socialLoginGoogle: async (token: string) => {
     const { data } = await apiClient.post('/auth/social/google', { token });
+    data.user = mapBackendUser(data.user) as any;
     return data;
   },
 
   socialLoginGithub: async (token: string) => {
     const { data } = await apiClient.post('/auth/social/github', { token });
+    data.user = mapBackendUser(data.user) as any;
     return data;
   },
 

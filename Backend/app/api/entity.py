@@ -1,7 +1,8 @@
 import logging
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
+from app.api.auth import get_current_user
 
 from app.config import ENTITY_TYPES
 from app.database import get_db
@@ -26,7 +27,7 @@ def _validate_entity_type(entity_type: str) -> str:
     "/entity/{entity_type}/predict",
     summary="Predict risk for a single entity (driver / fleet / ops)",
 )
-async def predict_single(entity_type: str, body: EntityPredictRequest):
+async def predict_single(entity_type: str, body: EntityPredictRequest, current_user: dict = Depends(get_current_user)):
     et = _validate_entity_type(entity_type)
 
     try:
@@ -39,6 +40,7 @@ async def predict_single(entity_type: str, body: EntityPredictRequest):
     await db.entity_results.insert_one(
         {
             "entity_type": et,
+            "user_id": current_user["user_id"],
             "input": body.data,
             "result": result,
             "predicted_at": datetime.now(timezone.utc),
@@ -52,7 +54,7 @@ async def predict_single(entity_type: str, body: EntityPredictRequest):
     "/entity/{entity_type}/predict_batch",
     summary="Predict risk for multiple entities in one request",
 )
-async def predict_batch(entity_type: str, body: EntityBatchPredictRequest):
+async def predict_batch(entity_type: str, body: EntityBatchPredictRequest, current_user: dict = Depends(get_current_user)):
     et = _validate_entity_type(entity_type)
 
     if not body.rows:
@@ -74,10 +76,11 @@ async def predict_batch(entity_type: str, body: EntityBatchPredictRequest):
 async def get_entity_results(
     entity_type: str = Query(None, description="Filter by entity type"),
     limit: int = Query(50, ge=1, le=500),
+    current_user: dict = Depends(get_current_user),
 ):
     db = get_db()
 
-    query: dict = {}
+    query: dict = {"user_id": current_user["user_id"]}
     if entity_type:
         query["entity_type"] = entity_type.lower()
 

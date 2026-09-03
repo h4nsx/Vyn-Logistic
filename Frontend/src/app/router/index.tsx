@@ -1,4 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { LoadingSpinner } from '../../shared/components/feedback/LoadingSpinner';
 
 // Layouts
 import { MainLayout } from '../layouts/main-layout';
@@ -7,36 +9,42 @@ import { AppLayout } from '../layouts/app-layout';
 import { RootLayout } from '../layouts/root-layout'; 
 
 // Public Pages
-import { LoginPage } from '../../pages/public/auth/login.page';
-import { RegisterPage } from '../../pages/public/auth/register.page';
-import { ForgotPasswordPage } from '../../pages/public/auth/forgot-password.page';
-import { ResetPasswordPage } from '../../pages/public/auth/reset-password.page';
-import { HomePage } from '../../pages/public/home.page';
-import { AboutPage } from '../../pages/public/about.page';
-import { ContactPage } from '../../pages/public/contact.page';
-import { PrivacyPolicyPage } from '../../pages/public/privacy.page';
-import { TermsOfServicePage } from '../../pages/public/terms.page';
+const LoginPage = lazy(() => import('../../pages/public/auth/login.page').then(m => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import('../../pages/public/auth/register.page').then(m => ({ default: m.RegisterPage })));
+const ForgotPasswordPage = lazy(() => import('../../pages/public/auth/forgot-password.page').then(m => ({ default: m.ForgotPasswordPage })));
+const ResetPasswordPage = lazy(() => import('../../pages/public/auth/reset-password.page').then(m => ({ default: m.ResetPasswordPage })));
+const HomePage = lazy(() => import('../../pages/public/home.page').then(m => ({ default: m.HomePage })));
+const AboutPage = lazy(() => import('../../pages/public/about.page').then(m => ({ default: m.AboutPage })));
+const ContactPage = lazy(() => import('../../pages/public/contact.page').then(m => ({ default: m.ContactPage })));
+const PrivacyPolicyPage = lazy(() => import('../../pages/public/privacy.page').then(m => ({ default: m.PrivacyPolicyPage })));
+const TermsOfServicePage = lazy(() => import('../../pages/public/terms.page').then(m => ({ default: m.TermsOfServicePage })));
 
 // Product Pages
-import { HowItWorksPage } from '../../pages/public/products/how-it-works.page';
-import { CoreFeaturesPage } from '../../pages/public/products/core-features.page';
-import { ArchitecturePage } from '../../pages/public/products/architecture.page';
-import { UseCasesPage } from '../../pages/public/products/use-cases.page';
+const HowItWorksPage = lazy(() => import('../../pages/public/products/how-it-works.page').then(m => ({ default: m.HowItWorksPage })));
+const CoreFeaturesPage = lazy(() => import('../../pages/public/products/core-features.page').then(m => ({ default: m.CoreFeaturesPage })));
+const ArchitecturePage = lazy(() => import('../../pages/public/products/architecture.page').then(m => ({ default: m.ArchitecturePage })));
+const UseCasesPage = lazy(() => import('../../pages/public/products/use-cases.page').then(m => ({ default: m.UseCasesPage })));
 
 // Resource Pages
-import { DocumentationPage } from '../../pages/public/resources/documentation.page';
-import { ApiReferencePage } from '../../pages/public/resources/api-reference.page';
-import { SampleDatasetsPage } from '../../pages/public/resources/sample-dataset.page';
-import { HelpCenterPage } from '../../pages/public/resources/help-center.page';
-import { DemoPage } from '../../pages/public/demo.page';
+const DocumentationPage = lazy(() => import('../../pages/public/resources/documentation.page').then(m => ({ default: m.DocumentationPage })));
+const ApiReferencePage = lazy(() => import('../../pages/public/resources/api-reference.page').then(m => ({ default: m.ApiReferencePage })));
+const SampleDatasetsPage = lazy(() => import('../../pages/public/resources/sample-dataset.page').then(m => ({ default: m.SampleDatasetsPage })));
+const HelpCenterPage = lazy(() => import('../../pages/public/resources/help-center.page').then(m => ({ default: m.HelpCenterPage })));
+const DemoPage = lazy(() => import('../../pages/public/demo.page').then(m => ({ default: m.DemoPage })));
 
 // App (Protected) Pages
-import { DashboardPage } from '../../pages/app/dashboard.page';
-import { UploadPage } from '../../pages/app/upload.page';
-import { DatasetDetailPage } from '../../pages/app/{datasets}/dataset-detail.page';
-import { AnalyticsPage } from '../../pages/app/analytics.page';
-import { DatasetsPage } from '../../pages/app/{datasets}/datasets.page';
-import { SettingsPage } from '../../pages/app/settings.page';
+const DashboardPage = lazy(() => import('../../pages/app/dashboard.page').then(m => ({ default: m.DashboardPage })));
+const UploadPage = lazy(() => import('../../pages/app/upload.page').then(m => ({ default: m.UploadPage })));
+const DatasetDetailPage = lazy(() => import('../../pages/app/{datasets}/dataset-detail.page').then(m => ({ default: m.DatasetDetailPage })));
+const AnalyticsPage = lazy(() => import('../../pages/app/analytics.page').then(m => ({ default: m.AnalyticsPage })));
+const DatasetsPage = lazy(() => import('../../pages/app/{datasets}/datasets.page').then(m => ({ default: m.DatasetsPage })));
+const SettingsPage = lazy(() => import('../../pages/app/settings.page').then(m => ({ default: m.SettingsPage })));
+
+const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<div className="h-screen w-full flex items-center justify-center bg-surface"><LoadingSpinner label="Loading..." /></div>}>
+    {children}
+  </Suspense>
+);
 
 export const router = createBrowserRouter([
   {
@@ -46,41 +54,41 @@ export const router = createBrowserRouter([
         path: '/',
         element: <MainLayout />,
         children: [
-          { index: true, element: <HomePage /> },
-          { path: 'products/how-it-works', element: <HowItWorksPage /> },
-          { path: 'products/core-features', element: <CoreFeaturesPage /> },
-          { path: 'products/architecture', element: <ArchitecturePage /> },
-          { path: 'products/use-cases', element: <UseCasesPage /> },
-          { path: 'about-us', element: <AboutPage /> },
-          { path: 'resources/docs', element: <DocumentationPage /> },
-          { path: 'resources/api', element: <ApiReferencePage /> },
-          { path: 'resources/samples', element: <SampleDatasetsPage /> },
-          { path: 'resources/help', element: <HelpCenterPage /> },
-          { path: 'demo', element: <DemoPage /> },
-          { path: 'contact', element: <ContactPage /> },
-          { path: 'privacy', element: <PrivacyPolicyPage /> },
-          { path: 'terms', element: <TermsOfServicePage /> },
+          { index: true, element: <SuspenseWrapper><HomePage /></SuspenseWrapper> },
+          { path: 'products/how-it-works', element: <SuspenseWrapper><HowItWorksPage /></SuspenseWrapper> },
+          { path: 'products/core-features', element: <SuspenseWrapper><CoreFeaturesPage /></SuspenseWrapper> },
+          { path: 'products/architecture', element: <SuspenseWrapper><ArchitecturePage /></SuspenseWrapper> },
+          { path: 'products/use-cases', element: <SuspenseWrapper><UseCasesPage /></SuspenseWrapper> },
+          { path: 'about-us', element: <SuspenseWrapper><AboutPage /></SuspenseWrapper> },
+          { path: 'resources/docs', element: <SuspenseWrapper><DocumentationPage /></SuspenseWrapper> },
+          { path: 'resources/api', element: <SuspenseWrapper><ApiReferencePage /></SuspenseWrapper> },
+          { path: 'resources/samples', element: <SuspenseWrapper><SampleDatasetsPage /></SuspenseWrapper> },
+          { path: 'resources/help', element: <SuspenseWrapper><HelpCenterPage /></SuspenseWrapper> },
+          { path: 'demo', element: <SuspenseWrapper><DemoPage /></SuspenseWrapper> },
+          { path: 'contact', element: <SuspenseWrapper><ContactPage /></SuspenseWrapper> },
+          { path: 'privacy', element: <SuspenseWrapper><PrivacyPolicyPage /></SuspenseWrapper> },
+          { path: 'terms', element: <SuspenseWrapper><TermsOfServicePage /></SuspenseWrapper> },
         ],
       },
       {
         element: <AuthLayout />,
         children: [
-          { path: 'login', element: <LoginPage /> },
-          { path: 'register', element: <RegisterPage /> },
-          { path: 'forgot-password', element: <ForgotPasswordPage /> },
-          { path: 'reset-password', element: <ResetPasswordPage /> },
+          { path: 'login', element: <SuspenseWrapper><LoginPage /></SuspenseWrapper> },
+          { path: 'register', element: <SuspenseWrapper><RegisterPage /></SuspenseWrapper> },
+          { path: 'forgot-password', element: <SuspenseWrapper><ForgotPasswordPage /></SuspenseWrapper> },
+          { path: 'reset-password', element: <SuspenseWrapper><ResetPasswordPage /></SuspenseWrapper> },
         ],
       },
       {
         path: '/app',
         element: <AppLayout />,
         children: [
-          { index: true, element: <DashboardPage /> },
-          { path: 'upload', element: <UploadPage /> },
-          { path: 'datasets', element: <DatasetsPage /> },
-          { path: 'datasets/:id', element: <DatasetDetailPage /> },
-          { path: 'analytics', element: <AnalyticsPage /> },
-          { path: 'settings', element: <SettingsPage /> },
+          { index: true, element: <SuspenseWrapper><DashboardPage /></SuspenseWrapper> },
+          { path: 'upload', element: <SuspenseWrapper><UploadPage /></SuspenseWrapper> },
+          { path: 'datasets', element: <SuspenseWrapper><DatasetsPage /></SuspenseWrapper> },
+          { path: 'datasets/:id', element: <SuspenseWrapper><DatasetDetailPage /></SuspenseWrapper> },
+          { path: 'analytics', element: <SuspenseWrapper><AnalyticsPage /></SuspenseWrapper> },
+          { path: 'settings', element: <SuspenseWrapper><SettingsPage /></SuspenseWrapper> },
         ],
       },
       {

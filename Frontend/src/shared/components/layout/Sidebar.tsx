@@ -28,9 +28,7 @@ export const Sidebar = () => {
       
       {/* Logo Section */}
       <div className="p-6 flex items-center gap-3 text-white">
-        <div className="bg-gradient-to-br from-orange to-orange-dark p-2 rounded-xl shadow-md shadow-orange/30">
-          <Zap className="w-5 h-5 fill-current" />
-        </div>
+        <img src="/favicon.webp" alt="Vyn Logo" className="w-9 h-9 rounded-xl object-cover" />
         <div>
           <span className="font-bold text-lg tracking-tight block leading-none">VYN</span>
           <span className="text-[10px] text-white/40 font-medium uppercase tracking-widest">Intelligence</span>

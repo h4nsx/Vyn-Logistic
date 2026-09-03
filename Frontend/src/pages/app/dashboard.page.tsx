@@ -133,8 +133,8 @@ export function DashboardPage() {
                   kpi.trend === 'down' ? 'bg-success-50 text-success' : 'bg-danger-50 text-danger'
                 }`}>
                   {kpi.trend === 'down'
-                    ? <TrendingDown className="w-3 h-3" />
-                    : <TrendingUp className="w-3 h-3" />}
+                    ? <><TrendingDown className="w-3 h-3" /> Improving</>
+                    : <><TrendingUp className="w-3 h-3" /> Elevated</>}
                 </div>
               )}
             </div>

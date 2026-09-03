@@ -71,9 +71,7 @@ export const Navbar = () => {
 
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 shrink-0 group z-50">
-            <div className="bg-gradient-to-br from-orange to-orange-dark text-white p-1.5 rounded-xl shadow-md shadow-orange/20 group-hover:shadow-orange/40 transition-shadow">
-              <Zap className="w-5 h-5" />
-            </div>
+            <img src="/favicon.webp" alt="Vyn Logo" className="w-8 h-8 rounded-xl object-cover" />
             <span className={cn(
               "font-bold text-xl tracking-tight transition-colors",
               (isScrolled || !isHomePage) ? 'text-navy' : 'text-white'

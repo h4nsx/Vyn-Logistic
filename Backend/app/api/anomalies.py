@@ -1,7 +1,8 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
+from app.api.auth import get_current_user
 
 from app.database import get_db
 
@@ -15,10 +16,11 @@ async def get_anomalies(
     min_risk: float = Query(0.0, ge=0.0, le=200.0, description="Minimum risk_score filter"),
     process_code: Optional[str] = Query(None, description="Filter by process type"),
     upload_id: Optional[str] = Query(None, description="Filter by upload batch"),
+    current_user: dict = Depends(get_current_user),
 ):
     db = get_db()
 
-    query: dict = {"is_anomaly": True}
+    query: dict = {"is_anomaly": True, "user_id": current_user["user_id"]}
     if min_risk > 0:
         query["risk_score"] = {"$gte": min_risk}
     if process_code:
