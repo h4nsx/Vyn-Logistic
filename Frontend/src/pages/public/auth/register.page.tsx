@@ -35,7 +35,7 @@ export function RegisterPage() {
       navigate('/app');
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Registration failed';
+      const message = error.response?.data?.detail || error.response?.data?.message || error.message || 'Registration failed';
       setError('root', { message });
     },
   });

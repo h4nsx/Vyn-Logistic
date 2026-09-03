@@ -31,7 +31,7 @@ export function ForgotPasswordPage() {
       setSent(true);
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || 'Something went wrong. Please try again.';
+      const message = error.response?.data?.detail || error.response?.data?.message || error.message || 'Failed to send reset link';
       setError('root', { message });
     },
   });

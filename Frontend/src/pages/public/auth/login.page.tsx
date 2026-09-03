@@ -28,8 +28,9 @@ export function LoginPage() {
       login(data.user, data.token);
       navigate('/app');
     },
-    onError: (error: Error) => {
-      setError('root', { message: error.message });
+    onError: (error: any) => {
+      const message = error.response?.data?.detail || error.response?.data?.message || error.message || 'Login failed';
+      setError('root', { message });
     },
   });
 

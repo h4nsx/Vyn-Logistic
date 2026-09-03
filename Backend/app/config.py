@@ -15,10 +15,13 @@ class Settings(BaseSettings):
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
         if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",")]
+            origins = [i.strip() for i in v.split(",")]
+            return [o.rstrip("/") for o in origins]
         elif isinstance(v, str):
-            return json.loads(v)
-        return v
+            import json
+            origins = json.loads(v)
+            return [o.rstrip("/") for o in origins]
+        return [o.rstrip("/") if isinstance(o, str) else o for o in v]
 
     JWT_SECRET_KEY: str = "change-this-secret-in-production"
     JWT_ALGORITHM: str = "HS256"

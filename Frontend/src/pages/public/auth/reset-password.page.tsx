@@ -45,7 +45,7 @@ export function ResetPasswordPage() {
       showToast('Password reset successful! You can now log in.', 'success');
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || 'Something went wrong. Please try again.';
+      const message = error.response?.data?.detail || error.response?.data?.message || error.message || 'Failed to reset password';
       setError('root', { message });
     },
   });
