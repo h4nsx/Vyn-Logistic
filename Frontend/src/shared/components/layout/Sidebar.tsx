@@ -5,7 +5,6 @@ import {
   BarChart3, 
   Settings, 
   LogOut, 
-  Zap,
   Upload 
 } from 'lucide-react';
 import { cn } from '../../../shared/utils/cn';

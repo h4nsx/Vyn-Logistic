@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Zap, Github, Linkedin, Mail, ArrowRight } from 'lucide-react';
+import { Github, Linkedin, Mail, ArrowRight } from 'lucide-react';
 
 const productLinks = [
   { name: 'Interactive Demo', href: '/demo' },
